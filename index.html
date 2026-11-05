@@ -1,0 +1,192 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Simulations3D · Procesos y control</title>
+<meta name="description" content="Simuladores 3D interactivos de procesos y control: reactor CSTR con HMI, cuadricóptero con PID, robot autoequilibrado con LQR, bombeo mecánico con cartas dinamométricas y evaporador de jugo de 5 efectos. Con la matemática en vivo.">
+<meta property="og:title" content="Simulations3D · Procesos y control">
+<meta property="og:description" content="Cinco simuladores físicos en 3D que corren en el navegador, con las ecuaciones en vivo y demos guiadas.">
+<meta property="og:image" content="assets/bombeo.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
+<style>
+/* Portada de portafolio: simuladores 3D como fichas de caso, con lo que se ve, el modelo y el control. */
+:root{
+  --bg:#f3f4f2; --panel:#ffffff; --fg:#151a17; --muted:#5c665f; --line:#dde2dc;
+  --accent:#b8860b; --accent2:#2b8a3e; --ink:#ffffff; --chip:#eef1ec;
+  --f-display:"Chakra Petch","Bahnschrift","Arial Narrow",sans-serif;
+  --f-body:"IBM Plex Sans","Segoe UI",system-ui,sans-serif;
+  --f-mono:"JetBrains Mono",ui-monospace,Menlo,monospace;
+  color-scheme:light;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#101311; --panel:#181c19; --fg:#e7ebe6; --muted:#97a196; --line:#2b322c; --accent:#f0b429; --accent2:#51cf66; --ink:#13110a; --chip:#222823; color-scheme:dark; }
+}
+*{box-sizing:border-box}
+body{margin:0; background:var(--bg); color:var(--fg); font:16px/1.6 var(--f-body)}
+.wrap{max-width:1120px; margin:0 auto; padding:0 max(18px, env(safe-area-inset-left, 0px))}
+header.top{display:flex; align-items:center; gap:12px; padding-block:18px}
+.handle{font:600 .85rem var(--f-mono); color:var(--muted)}
+.spacer{flex:1}
+.lang{display:inline-flex; border:1px solid var(--line); border-radius:8px; overflow:hidden}
+.lang button{font:600 .8rem var(--f-display); letter-spacing:.06em; border:0; background:var(--panel); color:var(--muted); padding:6px 10px; cursor:pointer}
+.lang button[aria-pressed="true"]{background:var(--fg); color:var(--bg)}
+.hero{padding-block:36px 28px}
+.eyebrow{font:600 .8rem var(--f-display); letter-spacing:.14em; text-transform:uppercase; color:var(--accent)}
+h1{font:700 clamp(2rem,5vw,3.4rem)/1.05 var(--f-display); margin:.25em 0 .35em; text-wrap:balance}
+.lead{font-size:1.12rem; color:var(--muted); max-width:62ch; margin:0}
+.chips{display:flex; flex-wrap:wrap; gap:6px; margin-top:18px}
+.chip{font:500 .78rem var(--f-mono); background:var(--chip); border:1px solid var(--line); border-radius:999px; padding:3px 10px}
+h2{font:700 1.5rem var(--f-display); margin:0 0 14px}
+section{padding-block:26px}
+.case{display:grid; grid-template-columns:minmax(0,1.15fr) minmax(0,1fr); gap:22px; background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:18px; margin-bottom:18px}
+@media (max-width: 860px){ .case{grid-template-columns:minmax(0,1fr)} }
+.media{border-radius:10px; overflow:hidden; border:1px solid var(--line); background:#000; align-self:start}
+.media img{display:block; width:100%; height:auto}
+.case h3{font:700 1.35rem/1.2 var(--f-display); margin:0}
+.domain{font:600 .75rem var(--f-display); letter-spacing:.12em; text-transform:uppercase; color:var(--accent2)}
+.case p{margin:.5em 0; color:var(--muted)}
+.metrics{display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:12px 0}
+.metric{background:var(--chip); border-radius:10px; padding:8px 10px}
+.metric b{display:block; font:700 1.35rem var(--f-display); color:var(--fg)}
+.metric span{font-size:.75rem; color:var(--muted); line-height:1.3; display:block}
+.actions{display:flex; flex-wrap:wrap; gap:8px; margin-top:12px}
+.btn{display:inline-flex; align-items:center; gap:6px; font:600 .85rem var(--f-body); text-decoration:none; border-radius:8px; padding:8px 12px; border:1px solid var(--line); color:var(--fg); background:var(--panel)}
+.btn.prim{background:var(--accent); border-color:var(--accent); color:var(--ink)}
+.btn:focus-visible{outline:2px solid var(--accent2); outline-offset:2px}
+ul.tight{margin:.4em 0; padding-left:1.1em; color:var(--muted)} ul.tight li{margin:.2em 0}
+.grid3{display:grid; grid-template-columns:repeat(3,1fr); gap:14px}
+@media (max-width: 860px){ .grid3{grid-template-columns:minmax(0,1fr)} }
+.card{background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:16px}
+.card h4{font:700 1.02rem var(--f-display); margin:0 0 6px}
+.card p{margin:0; color:var(--muted); font-size:.93rem}
+.steps{counter-reset:s; display:grid; grid-template-columns:repeat(4,1fr); gap:10px}
+@media (max-width: 860px){ .steps{grid-template-columns:repeat(2,1fr)} }
+.step{background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:12px; font-size:.88rem; color:var(--muted)}
+.step b{display:block; font:700 .95rem var(--f-display); color:var(--fg); margin-bottom:2px}
+footer{padding-block:30px 40px; color:var(--muted); font-size:.88rem; border-top:1px solid var(--line); margin-top:20px}
+footer a{color:var(--fg)}
+[data-l]{display:none} html[lang="es"] [data-l="es"], html[lang="en"] [data-l="en"]{display:revert}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <span class="handle">github.com/juanlaigle-hub</span>
+    <span class="spacer"></span>
+    <div class="lang" role="group" aria-label="Idioma / Language"><button id="bES" aria-pressed="true">ES</button><button id="bEN" aria-pressed="false">EN</button></div>
+  </header>
+
+  <div class="hero">
+    <div class="eyebrow"><span data-l="es">Simuladores físicos en 3D</span><span data-l="en">3D physics simulators</span></div>
+    <h1><span data-l="es">Procesos y control que se ven, con la matemática en vivo</span><span data-l="en">Processes and control you can see, with live math</span></h1>
+    <p class="lead"><span data-l="es">Cinco simuladores interactivos que corren en el navegador, sin instalar nada. Cada uno resuelve su modelo físico en tiempo real, muestra las ecuaciones con sus valores al mover cualquier control y tiene una demo guiada grabada en video.</span><span data-l="en">Five interactive simulators that run in the browser with nothing to install. Each one solves its physical model in real time, shows the equations with live values as you move any control, and has a guided demo recorded on video.</span></p>
+    <div class="chips"><span class="chip">JavaScript</span><span class="chip">three.js</span><span class="chip">MathJax</span><span class="chip">Python</span><span class="chip">Dash</span><span class="chip">PID</span><span class="chip">LQR</span><span class="chip">wave equation</span><span class="chip">mass &amp; energy balances</span><span class="chip">oil &amp; gas</span><span class="chip">food processing</span></div>
+  </div>
+
+  <section>
+    <h2><span data-l="es">Simuladores</span><span data-l="en">Simulators</span></h2>
+
+    <article class="case">
+      <div class="media"><img src="assets/cstr.gif" alt="Reactor CSTR encamisado en 3D con instrumentos y panel de control" loading="lazy"></div>
+      <div>
+        <div class="domain"><span data-l="es">Química · control de procesos</span><span data-l="en">Chemical · process control</span></div>
+        <h3><span data-l="es">Reactor CSTR R-101 · HMI de entrenamiento</span><span data-l="en">CSTR reactor R-101 · operator training HMI</span></h3>
+        <p><span data-l="es">Reactor encamisado con reacción exotérmica A → B. Balances de masa y energía integrados con RK4, ruido de medición y alarmas. Una HMI en Dash al estilo ISA-101 envía el estado a la vista 3D en cada paso; la página 3D también funciona sola.</span><span data-l="en">Jacketed reactor with an exothermic A → B reaction. Mass and energy balances integrated with RK4, measurement noise and alarms. A Dash HMI in ISA-101 style streams its state to the 3D view every tick; the 3D page also runs standalone.</span></p>
+        <div class="metrics"><div class="metric"><b>310 K</b><span data-l="es">estado estacionario base</span><span data-l="en">base steady state</span></div><div class="metric"><b>339 K</b><span data-l="es">fuga térmica si nadie actúa</span><span data-l="en">runaway with no operator action</span></div><div class="metric"><b>316 K</b><span data-l="es">recuperado por el operador</span><span data-l="en">recovered by the operator</span></div></div>
+        <ul class="tight"><li data-l="es">El color del líquido sigue a T, las moléculas cambian de A a B según la conversión y la baliza se enciende sobre 320 K.</li><li data-l="en">Liquid colour follows T, molecules turn from A to B with conversion, and the beacon lights above 320 K.</li></ul>
+        <div class="actions">
+          <a class="btn prim" href="hmi/assets/cstr_3d.html"><span data-l="es">Abrir el simulador</span><span data-l="en">Open simulator</span> →</a>
+          
+          <a class="btn" href="https://github.com/juanlaigle-hub/Simulations3D/tree/main/hmi">README</a>
+        </div>
+      </div>
+    </article>
+    <article class="case">
+      <div class="media"><img src="assets/dron.gif" alt="Cuadricóptero 3D volando con el panel de ecuaciones abierto" loading="lazy"></div>
+      <div>
+        <div class="domain"><span data-l="es">Robótica · aeroespacial</span><span data-l="en">Robotics · aerospace</span></div>
+        <h3><span data-l="es">Cuadricóptero Q-450</span><span data-l="en">Q-450 quadcopter</span></h3>
+        <p><span data-l="es">Dinámica de cuerpo rígido en 6 grados de libertad, PID en cascada (posición → actitud), mezclador en X y motores con su propia dinámica. Viento con ráfagas, carga desconocida, empujones y falla de un motor.</span><span data-l="en">6-DOF rigid-body dynamics, cascaded PID (position → attitude), X mixer and first-order motor dynamics. Gusty wind, unknown payload, pushes and a motor failure.</span></p>
+        <div class="metrics"><div class="metric"><b>6 GDL</b><span data-l="es">cuerpo rígido</span><span data-l="en">rigid body</span></div><div class="metric"><b>8</b><span data-l="es">ganancias PID en vivo</span><span data-l="en">live PID gains</span></div><div class="metric"><b>76 s</b><span data-l="es">demo guiada</span><span data-l="en">guided demo</span></div></div>
+        <ul class="tight"><li data-l="es">El panel "∑ Ver la matemática" resalta la ecuación y el término que cambia al mover cada control.</li><li data-l="en">The "∑ Show the math" panel highlights the equation and term that change when any control moves.</li></ul>
+        <div class="actions">
+          <a class="btn prim" href="drone_3d/cuadricoptero.html"><span data-l="es">Abrir el simulador</span><span data-l="en">Open simulator</span> →</a>
+          <a class="btn" href="drone_3d/demo_dron.mp4">Video</a>
+          <a class="btn" href="https://github.com/juanlaigle-hub/Simulations3D/tree/main/drone_3d">README</a>
+        </div>
+      </div>
+    </article>
+    <article class="case">
+      <div class="media"><img src="assets/robot.gif" alt="Robot autoequilibrado de dos ruedas con polos en el plano complejo" loading="lazy"></div>
+      <div>
+        <div class="domain"><span data-l="es">Robótica · control óptimo</span><span data-l="en">Robotics · optimal control</span></div>
+        <h3><span data-l="es">Robot balancín B-2</span><span data-l="en">B-2 self-balancing robot</span></h3>
+        <p><span data-l="es">Péndulo invertido sobre ruedas con patas de altura variable. Física no lineal y LQR resuelto en el navegador (algoritmo de duplicación), con los polos de lazo cerrado en vivo.</span><span data-l="en">Wheeled inverted pendulum with adjustable legs. Nonlinear physics and an LQR solved in the browser (doubling algorithm), with live closed-loop poles.</span></p>
+        <div class="metrics"><div class="metric"><b>LQR</b><span data-l="es">recalculado en vivo</span><span data-l="en">recomputed live</span></div><div class="metric"><b>4 cm</b><span data-l="es">retroceso de fase no mínima</span><span data-l="en">non-minimum-phase undershoot</span></div><div class="metric"><b>78 s</b><span data-l="es">demo guiada</span><span data-l="en">guided demo</span></div></div>
+        <ul class="tight"><li data-l="es">Muestra por qué un péndulo más alto es más fácil de equilibrar y qué pasa si no se recalcula la ganancia.</li><li data-l="en">Shows why a taller pendulum is easier to balance and what happens if the gain is not recomputed.</li></ul>
+        <div class="actions">
+          <a class="btn prim" href="robot_balancin/robot.html"><span data-l="es">Abrir el simulador</span><span data-l="en">Open simulator</span> →</a>
+          <a class="btn" href="robot_balancin/demo_robot.mp4">Video</a>
+          <a class="btn" href="https://github.com/juanlaigle-hub/Simulations3D/tree/main/robot_balancin">README</a>
+        </div>
+      </div>
+    </article>
+    <article class="case">
+      <div class="media"><img src="assets/bombeo.gif" alt="Aparato de bombeo mecánico con cartas dinamométricas en vivo" loading="lazy"></div>
+      <div>
+        <div class="domain"><span data-l="es">Oil &amp; gas · producción</span><span data-l="en">Oil &amp; gas · production</span></div>
+        <h3><span data-l="es">Bombeo mecánico AIB C-320</span><span data-l="en">Sucker-rod pumping unit C-320</span></h3>
+        <p><span data-l="es">Sarta de 1500 m modelada con la ecuación de onda amortiguada, bomba de fondo con cámara de líquido y gas y válvulas por presión. Cartas dinamométricas de superficie y de fondo en tiempo real, fallas típicas y controlador de bombeo (POC).</span><span data-l="en">1500 m rod string modelled with the damped wave equation, downhole pump with liquid/gas chamber and pressure-driven valves. Live surface and downhole dynamometer cards, typical faults and a pump-off controller (POC).</span></p>
+        <div class="metrics"><div class="metric"><b>1500 m</b><span data-l="es">sarta elástica</span><span data-l="en">elastic rod string</span></div><div class="metric"><b>5</b><span data-l="es">fallas simulables</span><span data-l="en">simulated faults</span></div><div class="metric"><b>148 s</b><span data-l="es">demo guiada</span><span data-l="en">guided demo</span></div></div>
+        <ul class="tight"><li data-l="es">Es la base de datos del clasificador de cartas de MachineLearningApplications.</li><li data-l="en">It generates the data for the card classifier in MachineLearningApplications.</li></ul>
+        <div class="actions">
+          <a class="btn prim" href="bombeo_mecanico/bombeo.html"><span data-l="es">Abrir el simulador</span><span data-l="en">Open simulator</span> →</a>
+          <a class="btn" href="bombeo_mecanico/demo_bombeo.mp4">Video</a>
+          <a class="btn" href="https://github.com/juanlaigle-hub/Simulations3D/tree/main/bombeo_mecanico">README</a>
+        </div>
+      </div>
+    </article>
+    <article class="case">
+      <div class="media"><img src="assets/evaporador.gif" alt="Evaporador de cinco efectos de jugo de manzana en 3D" loading="lazy"></div>
+      <div>
+        <div class="domain"><span data-l="es">Alimentos · jugo concentrado</span><span data-l="en">Food · juice concentrate</span></div>
+        <h3><span data-l="es">Evaporador de 5 efectos para jugo de manzana</span><span data-l="en">5-effect apple juice evaporator</span></h3>
+        <p><span data-l="es">Película descendente de 12 a 70 °Brix: balances por efecto, elevación del punto de ebullición, economía de vapor, control PI del °Brix, recuperación de aromas y daño térmico (HMF y color por Arrhenius).</span><span data-l="en">Falling-film evaporator from 12 to 70 °Brix: per-effect balances, boiling-point elevation, steam economy, PI °Brix control, aroma recovery and thermal damage (HMF and colour via Arrhenius).</span></p>
+        <div class="metrics"><div class="metric"><b>5</b><span data-l="es">efectos en cadena</span><span data-l="en">effects in series</span></div><div class="metric"><b>12 → 70</b><span data-l="es">°Brix</span><span data-l="en">°Brix</span></div><div class="metric"><b>158 s</b><span data-l="es">demo guiada</span><span data-l="en">guided demo</span></div></div>
+        <ul class="tight"><li data-l="es">Ensuciamiento, CIP, pérdida de vacío y enfriador de producto; enclavamiento de °Brix alto.</li><li data-l="en">Fouling, CIP, vacuum loss and product cooler; high-°Brix interlock.</li></ul>
+        <div class="actions">
+          <a class="btn prim" href="evaporador_jugo/evaporador.html"><span data-l="es">Abrir el simulador</span><span data-l="en">Open simulator</span> →</a>
+          <a class="btn" href="evaporador_jugo/demo_evaporador.mp4">Video</a>
+          <a class="btn" href="https://github.com/juanlaigle-hub/Simulations3D/tree/main/evaporador_jugo">README</a>
+        </div>
+      </div>
+    </article>
+  </section>
+
+  <section>
+    <h2><span data-l="es">Cómo están hechos</span><span data-l="en">How they are built</span></h2>
+    <div class="grid3">
+      <div class="card"><h4><span data-l="es">Modelo primero</span><span data-l="en">Model first</span></h4><p><span data-l="es">Cada animación sale del estado del modelo: balances, cinética, dinámica de cuerpo rígido o ecuación de onda. Nada se anima "a mano".</span><span data-l="en">Every animation is driven by the model state: balances, kinetics, rigid-body dynamics or the wave equation. Nothing is animated by hand.</span></p></div>
+      <div class="card"><h4><span data-l="es">La matemática a la vista</span><span data-l="en">Math in view</span></h4><p><span data-l="es">Un panel opcional muestra las ecuaciones con sus valores y resalta el término que cambia, para quien quiera ver qué hay detrás.</span><span data-l="en">An optional panel shows the equations with live values and highlights the term that changes, for anyone who wants to see what is behind it.</span></p></div>
+      <div class="card"><h4><span data-l="es">Fenomenología verificada</span><span data-l="en">Verified phenomenology</span></h4><p><span data-l="es">Chequeos físicos detectaron y corrigieron errores (una fuga que aumentaba la producción, una cadena de energía con dos soluciones). Dos simuladores alimentan los proyectos de machine learning.</span><span data-l="en">Physics checks caught and fixed bugs (a leak that increased production, a two-root energy chain). Two simulators feed the machine-learning projects.</span></p></div>
+    </div>
+  </section>
+
+  <footer>
+    <p><span data-l="es">Los proyectos de machine learning construidos sobre estos simuladores (diagnóstico de cartas dinamométricas y sensor virtual del evaporador) están en </span><span data-l="en">The machine-learning projects built on these simulators (dynamometer-card diagnosis and evaporator soft sensor) are in </span><a href="https://juanlaigle-hub.github.io/MachineLearningApplications/">juanlaigle-hub.github.io/MachineLearningApplications</a>.</p>
+    <p><span data-l="es">Los simuladores son educativos: los parámetros son representativos, no de un equipo real en particular.</span><span data-l="en">The simulators are educational: parameters are representative, not of a specific real unit.</span></p>
+    <p>MIT License</p>
+  </footer>
+</div>
+<script>
+(function(){
+  const set=l=>{ document.documentElement.lang=l; document.getElementById('bES').setAttribute('aria-pressed',String(l==='es')); document.getElementById('bEN').setAttribute('aria-pressed',String(l==='en')); try{localStorage.setItem('lang',l);}catch(e){} };
+  let l='es'; try{ l=localStorage.getItem('lang')||((navigator.language||'').startsWith('es')?'es':'en'); }catch(e){}
+  set(l); document.getElementById('bES').onclick=()=>set('es'); document.getElementById('bEN').onclick=()=>set('en');
+})();
+</script>
+</body>
+</html>

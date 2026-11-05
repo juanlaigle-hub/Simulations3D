@@ -1,1 +1,61 @@
-# Simulations3D
+# Simulations3D · Process and control simulators in 3D
+
+**Live site:** https://juanlaigle-hub.github.io/Simulations3D/ · [Versión en español](README.es.md)
+
+Five interactive physics simulators that run in the browser with nothing to install. Each one solves its model in real
+time, drives the 3D scene from the model state, shows the equations with live values (the term that changes is
+highlighted when you move a control) and has a guided demo recorded on video.
+
+| | Simulator | Model and control | Open |
+|---|---|---|---|
+| ![](assets/cstr.gif) | **[CSTR reactor R-101 · training HMI](hmi/)** | Jacketed reactor, exothermic A → B; mass and energy balances (RK4), measurement noise, alarms; Dash HMI (ISA-101 style) linked to the 3D view. Base case 310 K; preheater failure runs away to 339 K unless the operator acts | [3D page](https://juanlaigle-hub.github.io/Simulations3D/hmi/assets/cstr_3d.html) |
+| ![](assets/dron.gif) | **[Q-450 quadcopter](drone_3d/)** | 6-DOF rigid body, cascaded PID (position → attitude), X mixer, motor dynamics; wind gusts, unknown payload, motor failure | [Open](https://juanlaigle-hub.github.io/Simulations3D/drone_3d/cuadricoptero.html) · [video](drone_3d/demo_dron.mp4) |
+| ![](assets/robot.gif) | **[B-2 self-balancing robot](robot_balancin/)** | Nonlinear wheeled inverted pendulum with adjustable legs; LQR solved in the browser with live closed-loop poles | [Open](https://juanlaigle-hub.github.io/Simulations3D/robot_balancin/robot.html) · [video](robot_balancin/demo_robot.mp4) |
+| ![](assets/bombeo.gif) | **[Sucker-rod pumping unit C-320](bombeo_mecanico/)** | 1500 m rod string with the damped wave equation, downhole pump with gas/liquid chamber and pressure-driven valves; live surface and downhole dynamometer cards; 5 faults; pump-off controller | [Open](https://juanlaigle-hub.github.io/Simulations3D/bombeo_mecanico/bombeo.html) · [video](bombeo_mecanico/demo_bombeo.mp4) |
+| ![](assets/evaporador.gif) | **[5-effect apple juice evaporator](evaporador_jugo/)** | Falling film, 12 → 70 °Brix; per-effect balances, boiling-point elevation, steam economy, PI °Brix control, aroma recovery, thermal damage (HMF and colour via Arrhenius), fouling and CIP | [Open](https://juanlaigle-hub.github.io/Simulations3D/evaporador_jugo/evaporador.html) · [video](evaporador_jugo/demo_evaporador.mp4) |
+
+## Engineering decisions
+
+- **Model first.** Every animation comes from the model state (balances, kinetics, rigid-body dynamics, wave
+  equation). Nothing is animated by hand.
+- **Math in view, but optional.** The "∑ Show the math" panel renders the equations with MathJax and live values, and
+  highlights the equation and the term affected by the control you just moved.
+- **Phenomenology checks.** Physics tests caught real bugs, fixed in separate commits: a travelling-valve leak that
+  *increased* production (double counting), and an evaporator energy chain with two solutions near 80 °Brix (fixed
+  with viscosity-dependent U, a minimum wetting rate and a high-°Brix interlock).
+- **Works offline.** three.js and MathJax are bundled in each `vendor/` folder, with a CDN fallback.
+- **Basis for ML.** The pumping and evaporator simulators generate the data for the projects in
+  **[MachineLearningApplications](https://github.com/juanlaigle-hub/MachineLearningApplications)**.
+
+## Layout
+
+```
+hmi/                CSTR: Python model, Dash HMI and the 3D page (hmi/assets/cstr_3d.html)
+drone_3d/           quadcopter
+robot_balancin/     self-balancing robot
+bombeo_mecanico/    sucker-rod pumping
+evaporador_jugo/    5-effect evaporator
+assets/             previews
+index.html          portfolio landing page (GitHub Pages)
+CSTR_Fundamentals.md
+```
+
+Each folder has its own README (in Spanish) with the full equations, suggested experiments and the demo script.
+
+## Run
+
+The four 3D simulators and the CSTR 3D page are single HTML files: open them with a double click.
+
+The CSTR HMI runs in Python:
+
+```bash
+pip install -r requirements.txt
+python hmi/app.py
+```
+
+It opens at `http://127.0.0.1:8050`.
+
+## Notes
+
+- The simulators are educational: parameters are representative, not those of a specific real unit.
+- MIT license.
