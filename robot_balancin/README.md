@@ -1,42 +1,44 @@
-# Robot balancín B-2 · péndulo invertido sobre dos ruedas con control LQR
+# B-2 self-balancing robot · two-wheeled inverted pendulum with LQR control
 
-Simulador interactivo de un robot autoequilibrado de dos ruedas con patas de altura variable. La física es no lineal, el control es óptimo (LQR) y se calcula en el propio navegador. La escena 3D (three.js) muestra el robot, la vertical, el ángulo θ, el centro de masa, el par de cada rueda y la huella en el suelo. El panel **"∑ Ver la matemática"** muestra las ecuaciones de este documento con sus valores en vivo, incluidos los **polos del sistema en el plano complejo**. Al mover un control, se resaltan en rosa la ecuación y el término que cambia.
+[Versión en español](README.es.md)
+
+Interactive simulator of a two-wheeled self-balancing robot with adjustable legs. The physics is nonlinear, the control is optimal (LQR) and it is computed in the browser itself. The 3D scene (three.js) shows the robot, the vertical, the angle θ, the centre of mass, the torque on each wheel and the footprint on the ground. The **"∑ Show the math"** panel shows the equations in this document with their live values, including the **system poles in the complex plane**. When a control moves, the equation and the term that changes are highlighted in pink.
 
 <p><img src="../assets/robot-1.jpg" width="49%" alt=""> <img src="../assets/robot-2.jpg" width="49%" alt=""></p>
 
-## Cómo abrirlo
+## How to open it
 
-Abre `robot.html` en el navegador con doble clic. three.js y MathJax están incluidos en `vendor/`, así que funciona sin internet. El botón **"▶ Demo guiada"** reproduce una secuencia guiada, con subtítulos.
+Open `robot.html` in a browser with a double click. three.js and MathJax are bundled in `vendor/`, so it works offline. The **"▶ Guided demo"** button plays a guided sequence with captions.
 
-| Pestaña | Qué se puede mover |
+| Tab | What can be changed |
 |---|---|
-| **Mando** | Quedarse quieto, avanzar 1,5 m, ir y volver, ocho, conducción libre (velocidad y giro); empujón normal y fuerte; levantar el robot |
-| **Robot** | Altura de las patas $h$, masa del cuerpo $M$, par máximo por rueda; opción de no recalcular el LQR |
-| **LQR** | Pesos $q_x, q_v, q_\theta, q_\omega$ y $R$ (escala logarítmica); muestra la ganancia $K$ |
+| **Drive** | Stand still, move forward 1.5 m, go and come back, figure eight, free driving (speed and turn); normal and strong push; lift the robot |
+| **Robot** | Leg height $h$, body mass $M$, maximum torque per wheel; option to not recompute the LQR |
+| **LQR** | Weights $q_x, q_v, q_\theta, q_\omega$ and $R$ (log scale); shows the gain $K$ |
 
-Experimentos sugeridos:
+Suggested experiments:
 
-1. **Fase no mínima:** pon cámara lenta ×¼ y "Avanzar 1,5 m". Las ruedas retroceden unos 3 cm antes de avanzar.
-2. **Altura y estabilidad:** al subir las patas, el polo inestable se acerca al origen. Un péndulo más alto cae más lento y es más fácil de equilibrar.
-3. **LQR sin recalcular:** desactiva "Recalcular el LQR", sube las patas al máximo y da un empujón. La K vieja ya no es la óptima para ese robot.
-4. **R grande:** con $R$ = 100 el controlador ahorra par. Los polos se acercan al eje imaginario y la respuesta se vuelve lenta y amplia.
-5. **Saturación:** con 1,2 N·m por rueda el "empujón fuerte" lo tira. Con 3 N·m se recupera.
+1. **Non-minimum phase:** set slow motion ×¼ and "Move forward 1.5 m". The wheels roll back about 3 cm before moving forward.
+2. **Height and stability:** raising the legs moves the unstable pole toward the origin. A taller pendulum falls more slowly and is easier to balance.
+3. **LQR not recomputed:** turn off "Recompute LQR", raise the legs to the maximum and push. The old K is no longer optimal for that robot.
+4. **Large R:** with $R$ = 100 the controller saves torque. The poles move toward the imaginary axis and the response becomes slow and wide.
+5. **Saturation:** with 1.2 N·m per wheel the "strong push" knocks it over. With 3 N·m it recovers.
 
 ---
 
-## 1. Modelo
+## 1. Model
 
-Coordenadas generalizadas:
-- $x$: avance de las ruedas, con $x = r\,\varphi$ (rueda sin deslizar).
-- $\theta$: inclinación del cuerpo respecto de la vertical, positiva hacia adelante.
+Generalized coordinates:
+- $x$: wheel travel, with $x = r\,\varphi$ (rolling without slipping).
+- $\theta$: body tilt from the vertical, positive forward.
 
-El cuerpo, de masa $M$, tiene su centro de masa a una distancia $\ell = h + 0{,}05$ m del eje de las ruedas. Cada rueda tiene masa $m_w$, radio $r$ e inercia $I_w = \tfrac12 m_w r^2$.
+The body, of mass $M$, has its centre of mass at a distance $\ell = h + 0.05$ m from the wheel axle. Each wheel has mass $m_w$, radius $r$ and inertia $I_w = \tfrac12 m_w r^2$.
 
-El motor aplica un par $\tau$ **entre el cuerpo y las ruedas**. Sobre las ruedas genera una fuerza de avance $\tau/r$, y sobre el cuerpo una reacción $-\tau$.
+The motor applies a torque $\tau$ **between the body and the wheels**. On the wheels it produces a forward force $\tau/r$, and on the body a reaction $-\tau$.
 
-### Ecuaciones de Lagrange
+### Lagrange equations
 
-Energía cinética y potencial:
+Kinetic and potential energy:
 
 $$
 \mathcal T = \tfrac12 a\,\dot x^2 + b\cos\theta\,\dot x\,\dot\theta + \tfrac12 c\,\dot\theta^2,
@@ -44,13 +46,13 @@ $$
 \mathcal V = M g \ell \cos\theta
 $$
 
-con
+with
 
 $$
-a = M + 2m_w + \frac{2I_w}{r^2}, \qquad b = M\ell, \qquad c = I_b + M\ell^2, \qquad I_b = 0{,}25\,M\ell^2
+a = M + 2m_w + \frac{2I_w}{r^2}, \qquad b = M\ell, \qquad c = I_b + M\ell^2, \qquad I_b = 0.25\,M\ell^2
 $$
 
-De $\frac{d}{dt}\frac{\partial\mathcal L}{\partial\dot q} - \frac{\partial\mathcal L}{\partial q} = Q_q$ sale el modelo no lineal:
+From $\frac{d}{dt}\frac{\partial\mathcal L}{\partial\dot q} - \frac{\partial\mathcal L}{\partial q} = Q_q$ the nonlinear model follows:
 
 $$
 \begin{bmatrix} a & b\cos\theta \\ b\cos\theta & c \end{bmatrix}
@@ -58,11 +60,11 @@ $$
 \begin{bmatrix} \tau/r - b_x\dot x + b\sin\theta\,\dot\theta^2 \\ M g \ell\sin\theta - \tau \end{bmatrix}
 $$
 
-El simulador resuelve este sistema de 2×2 en cada paso (sin linealizar). $b_x$ es la fricción de rodadura.
+The simulator solves this 2×2 system at every step (without linearizing). $b_x$ is the rolling friction.
 
-## 2. Linealización y espacio de estados
+## 2. Linearization and state space
 
-Con $\sin\theta \approx \theta$, $\cos\theta \approx 1$ y $\dot\theta^2 \approx 0$, y llamando $\Delta = ac - b^2$:
+With $\sin\theta \approx \theta$, $\cos\theta \approx 1$ and $\dot\theta^2 \approx 0$, and writing $\Delta = ac - b^2$:
 
 $$
 \mathbf s = \begin{bmatrix} x & \dot x & \theta & \dot\theta \end{bmatrix}^{\mathsf T},
@@ -80,33 +82,33 @@ A = \begin{bmatrix}
 B = \begin{bmatrix} 0 \\ \dfrac{c/r + b}{\Delta} \\ 0 \\ -\dfrac{a + b/r}{\Delta} \end{bmatrix}
 $$
 
-Sin control, los polos son las raíces de $\det(sI - A) = 0$. Con los valores por defecto ($M$ = 3 kg, $h$ = 0,25 m) dan aproximadamente $\{-8{,}03;\; -0{,}02;\; 0;\; +8{,}00\}$. El polo en $+8$ rad/s es el del péndulo invertido: sin control el robot se cae en menos de un segundo.
+Without control, the poles are the roots of $\det(sI - A) = 0$. With the default values ($M$ = 3 kg, $h$ = 0.25 m) they are approximately $\{-8.03;\; -0.02;\; 0;\; +8.00\}$. The pole at $+8$ rad/s is the inverted pendulum's: without control the robot falls in less than a second.
 
-## 3. Control óptimo LQR
+## 3. Optimal LQR control
 
-Se busca el par que minimiza
+The torque that minimizes
 
 $$
 J = \int_0^\infty \left( \mathbf s^{\mathsf T} Q\, \mathbf s + R\,\tau^2 \right) dt,
 \qquad Q = \operatorname{diag}(q_x, q_v, q_\theta, q_\omega)
 $$
 
-La solución es una realimentación lineal del estado:
+is a linear state feedback:
 
 $$
 \tau = -K\,(\mathbf s - \mathbf s_{\text{ref}}), \qquad K = R^{-1} B^{\mathsf T} P
 $$
 
-donde $P$ es la solución simétrica definida positiva de la **ecuación algebraica de Riccati**:
+where $P$ is the symmetric positive-definite solution of the **algebraic Riccati equation**:
 
 $$
 A^{\mathsf T}P + PA - PB\,R^{-1}B^{\mathsf T}P + Q = 0
 $$
 
-### Cómo se resuelve en el navegador
+### How it is solved in the browser
 
-1. Se discretiza con un paso pequeño, $\Delta t$ = 2 ms: $A_d \approx I + A\Delta t + \tfrac12 A^2\Delta t^2$, $B_d \approx B\Delta t + \tfrac12 AB\,\Delta t^2$, $Q_d = Q\,\Delta t$, $R_d = R\,\Delta t$. Así la Riccati discreta tiende a la continua.
-2. La Riccati discreta se resuelve con el **algoritmo de doblamiento (SDA)**, que converge cuadráticamente en unas 20–30 iteraciones:
+1. The system is discretized with a small step, $\Delta t$ = 2 ms: $A_d \approx I + A\Delta t + \tfrac12 A^2\Delta t^2$, $B_d \approx B\Delta t + \tfrac12 AB\,\Delta t^2$, $Q_d = Q\,\Delta t$, $R_d = R\,\Delta t$. The discrete Riccati equation then tends to the continuous one.
+2. The discrete Riccati equation is solved with the **structure-preserving doubling algorithm (SDA)**, which converges quadratically in about 20–30 iterations:
 
 $$
 \begin{aligned}
@@ -118,90 +120,90 @@ H_{k+1} &= H_k + A_k^{\mathsf T} H_k W_k A_k
 \qquad A_0 = A_d,\; G_0 = B_d R_d^{-1} B_d^{\mathsf T},\; H_0 = Q_d
 $$
 
-3. Con $P = H_\infty$: $K = (R_d + B_d^{\mathsf T} P B_d)^{-1} B_d^{\mathsf T} P A_d$.
+3. With $P = H_\infty$: $K = (R_d + B_d^{\mathsf T} P B_d)^{-1} B_d^{\mathsf T} P A_d$.
 
-La iteración simple de Riccati tarda miles de pasos en converger para el modo lento de la posición. Con SDA, en cambio, el cálculo toma alrededor de 1 ms y se rehace cada vez que cambian $Q$, $R$, la altura o la masa.
+Plain Riccati iteration takes thousands of steps to converge for the slow position mode. With SDA the computation takes about 1 ms and is redone whenever $Q$, $R$, the height or the mass change.
 
-Con los pesos por defecto ($Q$ = diag(2, 1, 40, 1), $R$ = 2):
+With the default weights ($Q$ = diag(2, 1, 40, 1), $R$ = 2):
 
 $$
-K \approx \begin{bmatrix} -0{,}97 & -1{,}59 & -9{,}92 & -1{,}64 \end{bmatrix}
+K \approx \begin{bmatrix} -0.97 & -1.59 & -9.92 & -1.64 \end{bmatrix}
 $$
 
-Los polos con control, $\det(sI - (A - BK)) = 0$, quedan en aproximadamente $\{-21{,}1;\; -6{,}4;\; -0{,}97 \pm 0{,}65i\}$, todos en el semiplano izquierdo.
+The closed-loop poles, $\det(sI - (A - BK)) = 0$, are approximately $\{-21.1;\; -6.4;\; -0.97 \pm 0.65i\}$, all in the left half-plane.
 
-**Detalles prácticos:**
-- El error de posición $x - x_{\text{ref}}$ se limita a ±1 m. Así, una referencia lejana no pide una inclinación exagerada.
-- En las misiones con velocidad (ocho y conducción libre), $\mathbf s_{\text{ref}} = (x_{\text{ref}}, v_{\text{ref}}, 0, 0)$, con $x_{\text{ref}}$ integrando $v_{\text{ref}}$.
+**Practical details:**
+- The position error $x - x_{\text{ref}}$ is limited to ±1 m, so a distant reference does not demand an exaggerated tilt.
+- In the missions with speed (figure eight and free driving), $\mathbf s_{\text{ref}} = (x_{\text{ref}}, v_{\text{ref}}, 0, 0)$, with $x_{\text{ref}}$ integrating $v_{\text{ref}}$.
 
-## 4. Fase no mínima
+## 4. Non-minimum phase
 
-Transformando por Laplace las ecuaciones linealizadas (sin fricción), la transferencia del par al avance es
+Taking the Laplace transform of the linearized equations (without friction), the transfer function from torque to travel is
 
 $$
 \frac{X(s)}{T(s)} = \frac{(c/r + b)\,s^2 - Mg\ell/r}{s^2\left[(ac - b^2)\,s^2 - a\,Mg\ell\right]}
 $$
 
-Tiene ceros en
+It has zeros at
 
 $$
 z = \pm\sqrt{\frac{M g \ell}{c + b\,r}}
 $$
 
-El cero positivo, de unos 4,6 s⁻¹ con los valores por defecto, hace que el sistema sea **de fase no mínima**. Para avanzar, el robot primero tiene que inclinarse hacia adelante, y para eso mueve las ruedas un poco **hacia atrás**. En la simulación, al pedir un escalón de 1,5 m las ruedas retroceden unos 3 cm antes de avanzar.
+The positive zero, about 4.6 s⁻¹ with the default values, makes the system **non-minimum phase**. To move forward, the robot first has to lean forward, and to do that it moves its wheels slightly **backward**. In the simulation, a 1.5 m step makes the wheels roll back about 3 cm before moving forward.
 
-## 5. Giro y reparto entre ruedas
+## 5. Turning and torque split between wheels
 
-La diferencia de par entre las ruedas genera una diferencia de fuerzas en el suelo, separadas por la trocha $d$:
+A torque difference between the wheels creates a difference of ground forces, separated by the track width $d$:
 
 $$
 J_\psi\,\ddot\psi = \frac{d}{2r}\,(\tau_R - \tau_L) - b_\psi\,\dot\psi
 $$
 
 $$
-J_\psi = \frac{M\,(0{,}18^2 + 0{,}12^2)}{12} + 2 m_w \left(\frac d2\right)^2 + 2\cdot\tfrac14 m_w r^2
+J_\psi = \frac{M\,(0.18^2 + 0.12^2)}{12} + 2 m_w \left(\frac d2\right)^2 + 2\cdot\tfrac14 m_w r^2
 $$
 
-El rumbo se controla con un PD:
+Heading is controlled with a PD:
 
 $$
-\tau_\psi = K_{p\psi}\,(\psi_{\text{ref}} - \psi) + K_{d\psi}\,(\dot\psi_{\text{ref}} - \dot\psi), \qquad K_{p\psi} = 1{,}2,\; K_{d\psi} = 0{,}25
+\tau_\psi = K_{p\psi}\,(\psi_{\text{ref}} - \psi) + K_{d\psi}\,(\dot\psi_{\text{ref}} - \dot\psi), \qquad K_{p\psi} = 1.2,\; K_{d\psi} = 0.25
 $$
 
-El par de cada rueda combina equilibrio y giro, y se satura al límite del motor:
+Each wheel's torque combines balance and turning, and is saturated at the motor limit:
 
 $$
 \tau_{R,L} = \operatorname{sat}_{\tau_{\max}}\!\left(\frac{\tau}{2} \pm \frac{\tau_\psi}{2}\right)
 $$
 
-Cuando un motor satura, el par total ya no es el que pide el LQR. Si el empujón es grande, el robot no alcanza a ponerse debajo del centro de masa y se cae. Esto se detecta cuando $|\theta| > 66°$; entonces el robot queda apoyado a unos 81°.
+When a motor saturates, the total torque is no longer the one the LQR asks for. If the push is large, the robot cannot get under its centre of mass in time and falls. This is detected when $|\theta| > 66°$; the robot then rests at about 81°.
 
-La posición en el plano se obtiene integrando:
+The position on the plane is obtained by integrating:
 
 $$
 \dot X = \dot x\cos\psi, \qquad \dot Y = \dot x\sin\psi
 $$
 
-## 6. Parámetros
+## 6. Parameters
 
-| Símbolo | Valor | Descripción |
+| Symbol | Value | Description |
 |---|---|---|
-| $r$ | 0,085 m | radio de rueda |
-| $m_w$ | 0,35 kg | masa de cada rueda |
-| $d$ | 0,34 m | distancia entre ruedas |
-| $M$ | 3,0 kg (1,5–6) | masa del cuerpo |
-| $h$ | 0,25 m (0,12–0,38) | altura de las patas (cadera–eje); $\ell = h + 0{,}05$ m |
-| $I_b$ | $0{,}25\,M\ell^2$ | inercia del cuerpo respecto de su centro de masa |
-| $b_x$ | 0,08 N·s/m | fricción de rodadura |
-| $b_\psi$ | 0,05 N·m·s | amortiguamiento de giro |
-| $\tau_{\max}$ | 1,2 N·m por rueda (0,4–3) | par máximo del motor |
-| $g$ | 9,81 m/s² | gravedad |
+| $r$ | 0.085 m | wheel radius |
+| $m_w$ | 0.35 kg | mass of each wheel |
+| $d$ | 0.34 m | distance between wheels |
+| $M$ | 3.0 kg (1.5–6) | body mass |
+| $h$ | 0.25 m (0.12–0.38) | leg height (hip to axle); $\ell = h + 0.05$ m |
+| $I_b$ | $0.25\,M\ell^2$ | body inertia about its centre of mass |
+| $b_x$ | 0.08 N·s/m | rolling friction |
+| $b_\psi$ | 0.05 N·m·s | turning damping |
+| $\tau_{\max}$ | 1.2 N·m per wheel (0.4–3) | maximum motor torque |
+| $g$ | 9.81 m/s² | gravity |
 
-## 7. Integración numérica
+## 7. Numerical integration
 
-Euler semi-implícito con paso fijo de 2 ms: primero se actualizan las velocidades y después las posiciones con esas velocidades nuevas. Los polos del panel se calculan con el polinomio característico (método de Faddeev–LeVerrier) y sus raíces con el método de Durand–Kerner.
+Semi-implicit Euler with a fixed 2 ms step: velocities are updated first and positions then use the new velocities. The poles in the panel come from the characteristic polynomial (Faddeev–LeVerrier method) and its roots from the Durand–Kerner method.
 
-## Archivos
+## Files
 
-- `robot.html`: el simulador completo (modelo, LQR, escena 3D, panel de ecuaciones y demo guiada).
-- `vendor/`: three.js r128 (MIT) y MathJax 3.2.2 (Apache 2.0).
+- `robot.html`: the complete simulator (model, LQR, 3D scene, equation panel and guided demo).
+- `vendor/`: three.js r128 (MIT) and MathJax 3.2.2 (Apache 2.0).

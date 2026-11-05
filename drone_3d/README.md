@@ -1,38 +1,40 @@
-# Cuadricóptero Q-450 · simulador 3D con la matemática a la vista
+# Q-450 quadcopter · 3D simulator with the math in view
 
-Simulador interactivo de un cuadricóptero de 450 mm. Usa dinámica de cuerpo rígido en 6 grados de libertad, control PID en cascada y motores con su propia dinámica. La escena 3D (three.js) muestra el dron, las fuerzas sobre cada motor, la referencia, la estela y el viento. Un panel opcional, **"∑ Ver la matemática"**, muestra las ecuaciones de este documento con sus valores en vivo. Al mover cualquier control, ese panel resalta en rosa la ecuación y el término que cambia.
+[Versión en español](README.es.md)
 
-## Cómo abrirlo
+Interactive simulator of a 450 mm quadcopter. It uses 6-degree-of-freedom rigid-body dynamics, cascaded PID control and motors with their own dynamics. The 3D scene (three.js) shows the drone, the force on each motor, the reference, the trail and the wind. An optional panel, **"∑ Show the math"**, shows the equations in this document with their live values. When any control moves, the panel highlights in pink the equation and the term that changes.
 
-Abre `cuadricoptero.html` en el navegador con doble clic. No necesita servidor ni instalación. three.js y MathJax están incluidos en `vendor/`, así que funciona sin internet. Si falta algún archivo local, se cargan desde un CDN.
+## How to open it
 
-El botón **"▶ Demo guiada"** reproduce una secuencia de 76 s con subtítulos. Sube la altura, agrega carga, mete viento, da empujones con buen y mal amortiguamiento, simula la falla de un motor y vuela un círculo, todo con el panel de ecuaciones abierto.
+Open `cuadricoptero.html` in a browser with a double click. No server or installation needed. three.js and MathJax are bundled in `vendor/`, so it works offline. If a local file is missing, it is loaded from a CDN.
+
+The **"▶ Guided demo"** button plays a 76 s sequence with captions. It climbs, adds payload, turns on wind, gives pushes with good and bad damping, simulates a motor failure and flies a circle, all with the equation panel open.
 
 <p><img src="../assets/dron-1.jpg" width="49%" alt=""> <img src="../assets/dron-2.jpg" width="49%" alt=""></p>
 
-| Pestaña | Qué se puede mover |
+| Tab | What can be changed |
 |---|---|
-| **Misión** | Punto fijo (x, y, altura, rumbo) o trayectorias: círculo, ocho, cuadrado, espiral; aterrizar y despegar |
-| **Entorno** | Viento (velocidad, dirección, ráfagas), carga útil que el controlador no conoce, eficiencia del motor M3, empujón |
-| **Control** | Las 8 ganancias del PID; muestra $\omega_n$ y $\zeta$ del lazo de actitud |
+| **Mission** | Fixed point (x, y, altitude, heading) or trajectories: circle, figure eight, square, spiral; land and take off |
+| **Environment** | Wind (speed, direction, gusts), payload unknown to the controller, efficiency of motor M3, push |
+| **Control** | The 8 PID gains; shows $\omega_n$ and $\zeta$ of the attitude loop |
 
-Experimentos sugeridos:
+Suggested experiments:
 
-1. **Acción integral:** con 0,8 kg de carga el dron baja al principio y el término $K_i\int e\,dt$ recupera la altura en unos segundos. Con $K_i = 0$ queda un error permanente.
-2. **Amortiguamiento y retardo del motor:** con $K_{d,\eta}$ = 11 el dron oscila varias veces después de un empujón. Por debajo de $\tau_m K_{p,\eta} \approx 6{,}3$ el lazo es inestable: el dron se da vuelta, choca y los motores se desarman. Si $K_{d,\eta}$ sube mucho, responde lento.
-3. **Separación de lazos:** con $K_{p,\eta}$ bajo y $K_p$ horizontal alto, el lazo interno deja de ser más rápido que el externo y la posición se vuelve inestable.
-4. **Avería de motor:** con M3 al 60 %, el mezclador pide más a M3 hasta saturarlo y los demás motores compensan. Las barras de los motores lo muestran.
-5. **Viento con ráfagas:** con 10 m/s y 60 % de turbulencia, el dron se inclina contra el viento y el integral horizontal compensa el arrastre medio.
+1. **Integral action:** with 0.8 kg of payload the drone sinks at first and the term $K_i\int e\,dt$ recovers the altitude within a few seconds. With $K_i = 0$ a steady-state error remains.
+2. **Damping and motor lag:** with $K_{d,\eta}$ = 11 the drone oscillates several times after a push. Below $\tau_m K_{p,\eta} \approx 6.3$ the loop is unstable: the drone flips, crashes and the motors disarm. If $K_{d,\eta}$ is raised a lot, the response becomes slow.
+3. **Loop separation:** with a low $K_{p,\eta}$ and a high horizontal $K_p$, the inner loop is no longer faster than the outer one and the position becomes unstable.
+4. **Motor fault:** with M3 at 60 %, the mixer asks more of M3 until it saturates and the other motors compensate. The motor bars show it.
+5. **Gusty wind:** at 10 m/s with 60 % turbulence, the drone leans into the wind and the horizontal integral compensates the mean drag.
 
 ---
 
-## 1. Sistemas de referencia
+## 1. Reference frames
 
-- **Mundo (ENU):** $x$ al este, $y$ al norte, $z$ hacia arriba.
-- **Cuerpo (FLU):** $x_b$ hacia el frente, $y_b$ hacia la izquierda, $z_b$ hacia arriba del dron.
-- **Actitud:** ángulos de Euler $\boldsymbol\eta = (\phi, \theta, \psi)$: alabeo, cabeceo y guiñada, en secuencia Z-Y-X.
+- **World (ENU):** $x$ east, $y$ north, $z$ up.
+- **Body (FLU):** $x_b$ forward, $y_b$ left, $z_b$ up from the drone.
+- **Attitude:** Euler angles $\boldsymbol\eta = (\phi, \theta, \psi)$: roll, pitch and yaw, in Z-Y-X sequence.
 
-La matriz de rotación del cuerpo al mundo es
+The rotation matrix from body to world is
 
 $$
 R = R_z(\psi)\,R_y(\theta)\,R_x(\phi) =
@@ -43,34 +45,34 @@ s_\psi c_\theta & s_\psi s_\theta s_\phi + c_\psi c_\phi & s_\psi s_\theta c_\ph
 \end{bmatrix}
 $$
 
-con $c = \cos$ y $s = \sin$. La tercera columna es la dirección del empuje en el mundo. Con $\theta > 0$ la nariz baja y el dron acelera hacia adelante. Con $\phi > 0$ se inclina hacia la derecha y acelera en $-y_b$.
+with $c = \cos$ and $s = \sin$. The third column is the thrust direction in the world frame. With $\theta > 0$ the nose drops and the drone accelerates forward. With $\phi > 0$ it banks to the right and accelerates along $-y_b$.
 
-## 2. Motores y hélices
+## 2. Motors and propellers
 
-Cada motor $i$ gira a $\Omega_i$ [rad/s] y produce un empuje y un par de reacción:
+Each motor $i$ spins at $\Omega_i$ [rad/s] and produces a thrust and a reaction torque:
 
 $$
 T_i = h_i\,k_T\,\Omega_i^2 \qquad Q_i = k_Q\,\Omega_i^2
 $$
 
-$h_i$ es la eficiencia del motor (1 si está sano). El motor responde como un sistema de primer orden y tiene saturación:
+$h_i$ is the motor efficiency (1 when healthy). The motor responds as a first-order system with saturation:
 
 $$
 \tau_m\,\dot\Omega_i = \Omega_i^{\text{cmd}} - \Omega_i, \qquad 0 \le \Omega_i \le \Omega_{\max}
 $$
 
-## 3. Mezclador (configuración X)
+## 3. Mixer (X configuration)
 
-Los motores están a $\pm d$ en los dos ejes del cuerpo, con $d = \ell/\sqrt{2}$:
+The motors sit at $\pm d$ on both body axes, with $d = \ell/\sqrt{2}$:
 
-| Motor | Posición | Giro (visto desde arriba) |
+| Motor | Position | Spin (seen from above) |
 |---|---|---|
-| M1 | frente-derecha $(d, -d)$ | antihorario |
-| M2 | atrás-izquierda $(-d, d)$ | antihorario |
-| M3 | frente-izquierda $(d, d)$ | horario |
-| M4 | atrás-derecha $(-d, -d)$ | horario |
+| M1 | front-right $(d, -d)$ | counter-clockwise |
+| M2 | rear-left $(-d, d)$ | counter-clockwise |
+| M3 | front-left $(d, d)$ | clockwise |
+| M4 | rear-right $(-d, -d)$ | clockwise |
 
-El empuje total y los pares sobre el cuerpo salen de $\boldsymbol\tau = \sum \mathbf r_i \times \mathbf F_i$ más los pares de reacción:
+Total thrust and body torques follow from $\boldsymbol\tau = \sum \mathbf r_i \times \mathbf F_i$ plus the reaction torques:
 
 $$
 \begin{bmatrix} T \\ \tau_\phi \\ \tau_\theta \\ \tau_\psi \end{bmatrix} =
@@ -79,39 +81,39 @@ $$
 \qquad c = \frac{k_Q}{k_T}
 $$
 
-Las filas de la matriz son ortogonales, así que la inversa es directa. El controlador la usa para pasar de $(T, \boldsymbol\tau)$ al empuje de cada motor:
+The rows of the matrix are orthogonal, so the inverse is direct. The controller uses it to go from $(T, \boldsymbol\tau)$ to the thrust of each motor:
 
 $$
 T_i^{\text{cmd}} = \frac{T}{4} + \frac{a_{2i}}{4d^2}\,\tau_\phi + \frac{a_{3i}}{4d^2}\,\tau_\theta + \frac{a_{4i}}{4c^2}\,\tau_\psi,
 \qquad \Omega_i^{\text{cmd}} = \sqrt{T_i^{\text{cmd}}/k_T}
 $$
 
-donde $a_{ji}$ son los elementos de la matriz. Si algún $T_i^{\text{cmd}}$ sale del rango $[0, T_{\max}]$, primero se corre el empuje colectivo y, si no alcanza, se reducen los torques en la misma proporción. Así se prioriza el control de actitud sobre la altura, como hacen los controladores de vuelo reales. En ese caso el estado pasa a "Motores saturados".
+where $a_{ji}$ are the matrix elements. If any $T_i^{\text{cmd}}$ falls outside $[0, T_{\max}]$, the collective thrust is shifted first and, if that is not enough, the torques are scaled down in the same proportion. Attitude control thus takes priority over altitude, as in real flight controllers. In that case the status changes to "Motors saturated".
 
-Si el dron toca el suelo inclinado más de 50° o a más de 4 m/s, se considera un choque: los motores se desarman, el dron queda apoyado y aparece el botón "Reiniciar vuelo".
+If the drone touches the ground tilted more than 50° or faster than 4 m/s, it counts as a crash: the motors disarm, the drone rests on the ground and a "Restart flight" button appears.
 
-## 4. Dinámica traslacional (Newton)
+## 4. Translational dynamics (Newton)
 
 $$
 m\,\ddot{\mathbf p} = R\begin{bmatrix}0\\0\\T\end{bmatrix} - m\,g\,\mathbf e_z - k_d\,(\dot{\mathbf p} - \mathbf w)
 $$
 
-$\mathbf w$ es la velocidad del viento: un valor medio más ráfagas generadas con un proceso de Ornstein–Uhlenbeck:
+$\mathbf w$ is the wind velocity: a mean value plus gusts generated with an Ornstein–Uhlenbeck process:
 
 $$
 \dot{\mathbf w}_g = -\frac{\mathbf w_g}{\tau_g} + \sigma\sqrt{\frac{2}{\tau_g}}\;\boldsymbol\xi(t)
 $$
 
-$\boldsymbol\xi(t)$ es ruido blanco y $\tau_g$ = 1,2 s.
+$\boldsymbol\xi(t)$ is white noise and $\tau_g$ = 1.2 s.
 
-## 5. Dinámica rotacional (Euler)
+## 5. Rotational dynamics (Euler)
 
 $$
 I\,\dot{\boldsymbol\omega} = \boldsymbol\tau - \boldsymbol\omega \times I\boldsymbol\omega - k_r\,\boldsymbol\omega,
 \qquad I = \operatorname{diag}(I_x, I_y, I_z)
 $$
 
-$\boldsymbol\omega = (p, q, r)$ son las velocidades angulares en el cuerpo, las que mediría un giróscopo. Los ángulos de Euler evolucionan según
+$\boldsymbol\omega = (p, q, r)$ are the body angular rates, the ones a gyroscope would measure. The Euler angles evolve as
 
 $$
 \begin{bmatrix}\dot\phi\\ \dot\theta\\ \dot\psi\end{bmatrix} =
@@ -119,17 +121,17 @@ $$
 \begin{bmatrix} p\\ q\\ r\end{bmatrix}
 $$
 
-con $t = \tan$. La matriz es singular en $\theta = \pm 90°$. Por eso la simulación no integra los ángulos: integra la matriz de rotación, $\dot R = R\,[\boldsymbol\omega]_\times$, la reortonormaliza en cada paso y obtiene los ángulos de $R$. Así el dron puede darse vuelta sin que los números pierdan sentido.
+with $t = \tan$. The matrix is singular at $\theta = \pm 90°$. That is why the simulation does not integrate the angles: it integrates the rotation matrix, $\dot R = R\,[\boldsymbol\omega]_\times$, re-orthonormalizes it at every step and derives the angles from $R$. The drone can flip over without the numbers breaking down.
 
-## 6. Control en cascada
+## 6. Cascaded control
 
 ```
-p_ref ──► PID posición ──► (T, φ_d, θ_d) ──► PD actitud ──► τ ──► Mezclador ──► Ω_i ──► Dinámica ──┐
-  ▲                                                                                               │
-  └──────────────────────────────── p, ṗ, η, ω (realimentación) ──────────────────────────────────┘
+p_ref ──► position PID ──► (T, φ_d, θ_d) ──► attitude PD ──► τ ──► Mixer ──► Ω_i ──► Dynamics ──┐
+  ▲                                                                                            │
+  └──────────────────────────────── p, ṗ, η, ω (feedback) ─────────────────────────────────────┘
 ```
 
-### 6.1 Lazo externo: posición (PID)
+### 6.1 Outer loop: position (PID)
 
 $$
 \mathbf e = \mathbf p_{\text{ref}} - \mathbf p
@@ -139,15 +141,15 @@ $$
 \mathbf a_{\text{des}} = K_p\,\mathbf e + K_i\int \mathbf e\,dt - K_d\,(\dot{\mathbf p} - \dot{\mathbf p}_{\text{ref}})
 $$
 
-Se usan ganancias distintas para el plano horizontal y para la altura. La derivada actúa sobre la velocidad medida y no sobre el error, así un cambio brusco de referencia no produce un golpe derivativo. El integral tiene límites (anti-windup) y se congela cuando el dron está apoyado en el suelo.
+Separate gains are used for the horizontal plane and for altitude. The derivative acts on the measured velocity rather than on the error, so a step in the reference does not cause a derivative kick. The integral is bounded (anti-windup) and frozen while the drone rests on the ground.
 
-La aceleración deseada se convierte en empuje y ángulos. Primero se rota al marco de rumbo del dron:
+The desired acceleration is converted into thrust and angles. It is first rotated into the drone's heading frame:
 
 $$
 a_f = a_x\cos\psi + a_y\sin\psi, \qquad a_l = -a_x\sin\psi + a_y\cos\psi
 $$
 
-y después:
+and then:
 
 $$
 T_{\text{cmd}} = \frac{\hat m\,(g + a_z)}{\cos\phi\,\cos\theta},
@@ -155,15 +157,15 @@ T_{\text{cmd}} = \frac{\hat m\,(g + a_z)}{\cos\phi\,\cos\theta},
 \qquad \phi_d = -\arctan\frac{a_l}{g + a_z}
 $$
 
-$\hat m$ = 1,5 kg es la masa que **cree** el controlador. Si se agrega carga útil, la diferencia $m - \hat m$ la corrige el término integral de altura.
+$\hat m$ = 1.5 kg is the mass the controller **believes** the drone has. When payload is added, the difference $m - \hat m$ is corrected by the altitude integral term.
 
-### 6.2 Lazo interno: actitud (PD)
+### 6.2 Inner loop: attitude (PD)
 
 $$
 \boldsymbol\tau_{\text{cmd}} = I\left[K_{p,\eta}\,(\boldsymbol\eta_d - \boldsymbol\eta) - K_{d,\eta}\,\boldsymbol\omega\right]
 $$
 
-Para ángulos chicos ($\boldsymbol\omega \approx \dot{\boldsymbol\eta}$), cada eje se comporta como un sistema de segundo orden:
+For small angles ($\boldsymbol\omega \approx \dot{\boldsymbol\eta}$), each axis behaves as a second-order system:
 
 $$
 \ddot e + K_{d,\eta}\,\dot e + K_{p,\eta}\,e = 0
@@ -171,61 +173,61 @@ $$
 \omega_n = \sqrt{K_{p,\eta}}, \qquad \zeta = \frac{K_{d,\eta}}{2\sqrt{K_{p,\eta}}}
 $$
 
-Con los valores por defecto ($K_{p,\eta}$ = 180, $K_{d,\eta}$ = 22) queda $\omega_n \approx$ 13,4 rad/s y $\zeta \approx$ 0,82.
+With the default values ($K_{p,\eta}$ = 180, $K_{d,\eta}$ = 22) this gives $\omega_n \approx$ 13.4 rad/s and $\zeta \approx$ 0.82.
 
-Los motores no responden al instante (τ<sub>m</sub> = 35 ms). Con ese retardo la ecuación del error pasa a ser de tercer orden:
+The motors do not respond instantly (τ<sub>m</sub> = 35 ms). With that lag the error equation becomes third order:
 
 $$
 \tau_m\,\dddot e + \ddot e + K_{d,\eta}\,\dot e + K_{p,\eta}\,e = 0
-\quad\Rightarrow\quad \text{estable si } K_{d,\eta} > \tau_m\,K_{p,\eta}
+\quad\Rightarrow\quad \text{stable if } K_{d,\eta} > \tau_m\,K_{p,\eta}
 $$
 
-(criterio de Routh–Hurwitz). Con $K_{p,\eta}$ = 180, el mínimo es $K_{d,\eta} \approx$ 6,3. El retardo también resta amortiguamiento: con los valores por defecto el $\zeta$ efectivo es 0,40, y con $K_{d,\eta}$ = 11 baja a 0,15. El panel muestra el $\zeta$ efectivo, calculado con las raíces de esta ecuación. El lazo de posición horizontal tiene $\omega_n \approx \sqrt{1{,}8} \approx$ 1,3 rad/s. El lazo interno es unas 10 veces más rápido, que es lo que hace funcionar la cascada.
+(Routh–Hurwitz criterion). With $K_{p,\eta}$ = 180, the minimum is $K_{d,\eta} \approx$ 6.3. The lag also takes away damping: with the default values the effective $\zeta$ is 0.40, and with $K_{d,\eta}$ = 11 it drops to 0.15. The panel shows the effective $\zeta$, computed from the roots of this equation. The horizontal position loop has $\omega_n \approx \sqrt{1.8} \approx$ 1.3 rad/s. The inner loop is about 10 times faster, which is what makes the cascade work.
 
-### 6.3 Rumbo
+### 6.3 Heading
 
 $$
 \tau_\psi = I_z\left[K_{p,\psi}\,\operatorname{wrap}(\psi_d - \psi) - K_{d,\psi}\,r\right], \qquad K_{p,\psi} = 6,\; K_{d,\psi} = 3
 $$
 
-$\operatorname{wrap}$ lleva el error al intervalo $(-\pi, \pi]$, así el dron gira por el camino más corto.
+$\operatorname{wrap}$ maps the error into $(-\pi, \pi]$, so the drone turns the short way.
 
-## 7. Trayectorias
+## 7. Trajectories
 
-Cada misión genera $\mathbf p_{\text{ref}}(t)$ y su derivada $\dot{\mathbf p}_{\text{ref}}(t)$, que el PID usa como prealimentación:
+Each mission generates $\mathbf p_{\text{ref}}(t)$ and its derivative $\dot{\mathbf p}_{\text{ref}}(t)$, which the PID uses as feed-forward:
 
-| Misión | $\mathbf p_{\text{ref}}(t)$ |
+| Mission | $\mathbf p_{\text{ref}}(t)$ |
 |---|---|
-| Círculo | $(3\cos\omega t,\; 3\sin\omega t,\; 3)$, $\omega$ = 0,35 rad/s, con la nariz tangente al recorrido |
-| Ocho | $(3{,}5\sin\omega t,\; 1{,}75\sin 2\omega t,\; 3 + 0{,}5\sin\omega t)$, $\omega$ = 0,3 rad/s |
-| Espiral | círculo de 2,5 m que sube de 1 a 5 m y vuelve a bajar |
-| Cuadrado | lados de 6 m a 1,6 m/s, mirando en la dirección de avance |
+| Circle | $(3\cos\omega t,\; 3\sin\omega t,\; 3)$, $\omega$ = 0.35 rad/s, nose tangent to the path |
+| Figure eight | $(3.5\sin\omega t,\; 1.75\sin 2\omega t,\; 3 + 0.5\sin\omega t)$, $\omega$ = 0.3 rad/s |
+| Spiral | 2.5 m circle climbing from 1 to 5 m and back down |
+| Square | 6 m sides at 1.6 m/s, facing the direction of travel |
 
-Para que el dron no salte al cambiar de misión, la referencia se acerca al punto objetivo a 3 m/s como máximo.
+So the drone does not jump when the mission changes, the reference approaches the target point at 3 m/s at most.
 
-## 8. Parámetros
+## 8. Parameters
 
-| Símbolo | Valor | Descripción |
+| Symbol | Value | Description |
 |---|---|---|
-| $\hat m$ | 1,5 kg | masa nominal (la que conoce el controlador) |
-| $\ell$ | 0,225 m | largo del brazo (centro a motor) |
-| $I_x, I_y, I_z$ | 0,0123; 0,0123; 0,0224 kg·m² | momentos de inercia |
-| $k_T$ | 1,0·10⁻⁵ N·s² | coeficiente de empuje |
-| $k_Q$ | 1,6·10⁻⁷ N·m·s² | coeficiente de par |
-| $\tau_m$ | 35 ms | constante de tiempo del motor |
-| $\Omega_{\max}$ | 1100 rad/s | velocidad máxima ($T_{\max}$ ≈ 12,1 N por motor; relación empuje/peso ≈ 3,3) |
-| $k_d$ | 0,3 N·s/m | arrastre aerodinámico lineal |
-| $k_r$ | 0,002 N·m·s | amortiguamiento rotacional |
-| $g$ | 9,81 m/s² | gravedad |
+| $\hat m$ | 1.5 kg | nominal mass (known to the controller) |
+| $\ell$ | 0.225 m | arm length (centre to motor) |
+| $I_x, I_y, I_z$ | 0.0123; 0.0123; 0.0224 kg·m² | moments of inertia |
+| $k_T$ | 1.0·10⁻⁵ N·s² | thrust coefficient |
+| $k_Q$ | 1.6·10⁻⁷ N·m·s² | torque coefficient |
+| $\tau_m$ | 35 ms | motor time constant |
+| $\Omega_{\max}$ | 1100 rad/s | maximum speed ($T_{\max}$ ≈ 12.1 N per motor; thrust-to-weight ratio ≈ 3.3) |
+| $k_d$ | 0.3 N·s/m | linear aerodynamic drag |
+| $k_r$ | 0.002 N·m·s | rotational damping |
+| $g$ | 9.81 m/s² | gravity |
 
-En vuelo estacionario cada motor gira a $\Omega_h = \sqrt{\hat m g / 4k_T} \approx$ 606 rad/s (unas 5800 rpm).
+In hover each motor spins at $\Omega_h = \sqrt{\hat m g / 4k_T} \approx$ 606 rad/s (about 5800 rpm).
 
-## 9. Integración numérica
+## 9. Numerical integration
 
-Euler semi-implícito con paso fijo de 2 ms (500 pasos por segundo de simulación). Primero se actualizan las velocidades y después las posiciones con esas velocidades nuevas. La orientación se integra con la matriz de rotación y se reortonormaliza (Gram–Schmidt) en cada paso. Cuando la simulación se pausa o va en cámara lenta, también se pausa o se frena el giro visible de las hélices.
+Semi-implicit Euler with a fixed 2 ms step (500 steps per simulated second). Velocities are updated first and positions then use the new velocities. Orientation is integrated with the rotation matrix and re-orthonormalized (Gram–Schmidt) at every step. When the simulation is paused or in slow motion, the visible propeller spin is paused or slowed too.
 
-## Archivos
+## Files
 
-- `cuadricoptero.html`: el simulador completo (modelo, control, escena 3D y panel de ecuaciones).
-- `vendor/three.min.js`, `vendor/OrbitControls.js`: three.js r128 (licencia MIT).
-- `vendor/mathjax/`: MathJax 3.2.2 con salida SVG, más las extensiones `html` y `boldsymbol` (licencia Apache 2.0).
+- `cuadricoptero.html`: the complete simulator (model, control, 3D scene and equation panel).
+- `vendor/three.min.js`, `vendor/OrbitControls.js`: three.js r128 (MIT license).
+- `vendor/mathjax/`: MathJax 3.2.2 with SVG output, plus the `html` and `boldsymbol` extensions (Apache 2.0 license).

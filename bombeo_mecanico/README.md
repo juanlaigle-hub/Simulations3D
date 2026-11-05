@@ -1,33 +1,35 @@
-# Bombeo mecánico AIB C-320 · carta dinamométrica en vivo
+# Sucker-rod pumping unit C-320 · live dynamometer cards
 
-Simulador 3D de un pozo con bombeo mecánico: aparato individual de bombeo (AIB), sarta de varillas de 1500 m y bomba de fondo con sus válvulas. La sarta se modela como un sólido elástico con la **ecuación de onda amortiguada**. La bomba tiene una cámara con líquido y gas, y válvulas que abren y cierran según las presiones. Con eso se obtienen la **carta dinamométrica de superficie y la de fondo** en tiempo real, igual que las que mide un dinamómetro en el campo.
+[Versión en español](README.es.md)
+
+3D simulator of a well on sucker-rod pumping: beam pumping unit, 1500 m rod string and downhole pump with its valves. The rod string is modelled as an elastic solid with the **damped wave equation**. The pump has a chamber with liquid and gas, and valves that open and close according to pressures. This yields the **surface and downhole dynamometer cards** in real time, like the ones a dynamometer measures in the field.
 
 <p><img src="../assets/bombeo-1.jpg" width="49%" alt=""> <img src="../assets/bombeo-2.jpg" width="49%" alt=""></p>
 
-## Cómo abrirlo
+## How to open it
 
-Abre `bombeo.html` en el navegador con doble clic. three.js y MathJax están incluidos en `vendor/`, así que funciona sin internet.
+Open `bombeo.html` in a browser with a double click. three.js and MathJax are bundled in `vendor/`, so it works offline.
 
-- **"▶ Demo guiada":** reproduce una secuencia guiada con subtítulos.
-- **"∑ Ver la matemática":** abre el panel con las ecuaciones y sus valores en vivo.
-- **Vistas de cámara:** vista general, aparato y bomba de fondo.
+- **"▶ Guided demo":** plays a guided sequence with captions.
+- **"∑ Show the math":** opens the panel with the equations and their live values.
+- **Camera views:** overview, pumping unit and downhole pump.
 
-| Pestaña | Qué se puede mover |
+| Tab | What can be changed |
 |---|---|
-| **Operación** | Golpes por minuto, potencial del pozo (AOF), momento del contrapeso, diámetro del pistón |
-| **Fallas** | Gas libre en la admisión, fuga en válvula viajera, fuga en válvula fija, varilla cortada, golpe abajo, reparar todo |
-| **Control** | Controlador de bombeo (POC) con llenado mínimo aceptado |
+| **Operation** | Strokes per minute, well potential (AOF), counterbalance moment, plunger diameter |
+| **Faults** | Free gas at the intake, travelling-valve leak, standing-valve leak, parted rod, pump tagging bottom, repair all |
+| **Control** | Pump-off controller (POC) with a minimum accepted fillage |
 
-Lo que se ve en 3D:
-- **Aparato:** la viga cabeceando, las bielas, la manivela con los contrapesos, el reductor, el motor, la brida, el vástago pulido y el flujo en la línea.
-- **Pozo en corte:** la sarta coloreada según su tensión (azul = baja, rojo = alta) y el nivel de fluido en el anular. La profundidad está comprimida; la bomba, en cambio, está a escala real.
-- **Bomba:** el pistón, la cámara con líquido y gas, y las bolas de las válvulas fija y viajera, que se encienden en verde al abrir.
+What the 3D view shows:
+- **Pumping unit:** the walking beam, the pitmans, the crank with its counterweights, the gearbox, the motor, the carrier bar, the polished rod and the flow in the line.
+- **Well cross-section:** the rod string coloured by tension (blue = low, red = high) and the fluid level in the annulus. Depth is compressed; the pump, however, is at real scale.
+- **Pump:** the plunger, the chamber with liquid and gas, and the balls of the standing and travelling valves, which light up green when open.
 
 ---
 
-## 1. Cinemática del aparato (mecanismo de 4 barras)
+## 1. Pumping unit kinematics (four-bar linkage)
 
-Coordenadas en el plano del aparato: el cojinete central (pivote de la viga) está en $(0, H)$ y el eje de la manivela en $(I, 0)$. Para cada ángulo de manivela $\theta$, el ángulo de la viga $\beta$ sale de que la biela tiene longitud fija $P$:
+Coordinates in the plane of the unit: the centre bearing (beam pivot) is at $(0, H)$ and the crankshaft at $(I, 0)$. For each crank angle $\theta$, the beam angle $\beta$ follows from the pitman having a fixed length $P$:
 
 $$
 \big\lVert \mathbf E(\beta) - \mathbf C(\theta) \big\rVert = P,
@@ -37,36 +39,36 @@ $$
 \mathbf C = \begin{bmatrix} I + R\cos\theta \\ R\sin\theta \end{bmatrix}
 $$
 
-La ecuación se resuelve por bisección y se tabula en 720 puntos. La cabeza de mula es un arco de radio $A$, así que el vástago pulido se mueve en vertical:
+The equation is solved by bisection and tabulated at 720 points. The horsehead is an arc of radius $A$, so the polished rod moves vertically:
 
 $$
 y_{\text{pr}}(\theta) = -A\,\beta(\theta) - y_{\min},
 \qquad \theta = \omega t, \quad \omega = \frac{2\pi N}{60}
 $$
 
-El **factor de torque** es $TF(\theta) = dy_{\text{pr}}/d\theta$, en metros por radián.
+The **torque factor** is $TF(\theta) = dy_{\text{pr}}/d\theta$, in metres per radian.
 
-| Cota | Valor | Descripción |
+| Dimension | Value | Description |
 |---|---|---|
-| $A$ | 3,0 m | pivote a cabeza de mula |
-| $C$ | 2,4 m | pivote a compensador |
-| $P$ | 3,3 m | largo de la biela |
-| $R$ | 0,95 m | radio de manivela |
-| $I$ | 2,4 m | distancia horizontal pivote–eje de manivela |
-| $H$ | 3,3 m | altura del pivote sobre el eje de manivela |
+| $A$ | 3.0 m | pivot to horsehead |
+| $C$ | 2.4 m | pivot to equalizer |
+| $P$ | 3.3 m | pitman length |
+| $R$ | 0.95 m | crank radius |
+| $I$ | 2.4 m | horizontal distance pivot–crankshaft |
+| $H$ | 3.3 m | pivot height above the crankshaft |
 
-La carrera resultante del vástago pulido es de 2,45 m.
+The resulting polished-rod stroke is 2.45 m.
 
-## 2. Sarta de varillas: ecuación de onda amortiguada (Gibbs)
+## 2. Rod string: damped wave equation (Gibbs)
 
-Sea $u(x,t)$ el desplazamiento axial de la varilla en la profundidad $x$ (positivo hacia abajo):
+Let $u(x,t)$ be the axial displacement of the rod at depth $x$ (positive downward):
 
 $$
 \frac{\partial^2 u}{\partial t^2} = v^2\,\frac{\partial^2 u}{\partial x^2} - c\,\frac{\partial u}{\partial t} + g\left(1 - \frac{\rho_f}{\rho_s}\right),
 \qquad v = \sqrt{\frac{E}{\rho_s}} \approx 5135\ \text{m/s}
 $$
 
-El último término es el peso de las varillas sumergidas en el fluido. Condiciones de borde:
+The last term is the weight of the rods immersed in fluid. Boundary conditions:
 
 $$
 u(0,t) = -y_{\text{pr}}(t)
@@ -74,124 +76,124 @@ u(0,t) = -y_{\text{pr}}(t)
 E A_r \left.\frac{\partial u}{\partial x}\right|_{x=L} = F_p(t)
 $$
 
-En superficie se impone el movimiento del aparato. En el fondo, la tensión de la varilla es igual a la carga de la bomba. La carga en el vástago pulido es
+At the surface the unit's motion is imposed. At the bottom, the rod tension equals the pump load. The polished-rod load is
 
 $$
 \text{PRL}(t) = E A_r \left.\frac{\partial u}{\partial x}\right|_{x=0}
 $$
 
-### Discretización
+### Discretization
 
-Se usan diferencias finitas explícitas centradas, con $N = 50$ tramos ($\Delta x$ = 30 m) y $\Delta t$ = 1 ms:
+Explicit centred finite differences, with $N = 50$ segments ($\Delta x$ = 30 m) and $\Delta t$ = 1 ms:
 
 $$
 u_i^{n+1} = \frac{2u_i^n - \left(1 - \tfrac{c\Delta t}{2}\right)u_i^{n-1} + r\left(u_{i+1}^n - 2u_i^n + u_{i-1}^n\right) + \Delta t^2\, g_{\text{ef}}}{1 + \tfrac{c\Delta t}{2}},
 \qquad r = \left(\frac{v\,\Delta t}{\Delta x}\right)^2
 $$
 
-El número de Courant es $v\Delta t/\Delta x \approx 0{,}17 < 1$, así que el esquema es estable. En el fondo se usa un nodo fantasma: $u_{N+1} = u_{N-1} + 2\Delta x\,F_p/(EA_r)$. El PRL se calcula con una derivada de segundo orden hacia adelante.
+The Courant number is $v\Delta t/\Delta x \approx 0.17 < 1$, so the scheme is stable. A ghost node is used at the bottom: $u_{N+1} = u_{N-1} + 2\Delta x\,F_p/(EA_r)$. The PRL is computed with a second-order forward derivative.
 
-Las ondas de tensión tardan $L/v \approx 0{,}29$ s en recorrer la sarta. Por eso la carta de superficie es una versión "filtrada y retrasada" de la carta de fondo, con oscilaciones sobre el peso de las varillas.
+Stress waves take $L/v \approx 0.29$ s to travel the string. That is why the surface card is a "filtered and delayed" version of the downhole card, with oscillations on top of the rod weight.
 
-## 3. Bomba de fondo
+## 3. Downhole pump
 
-La cámara entre la válvula fija y el pistón tiene un volumen $V = A_p\,(y_p - y_0)$. Contiene líquido $V_l$ (incompresible) y gas, con $p\,V_g = n_g$ constante (isotérmico):
-
-$$
-p_{\text{cám}} = \frac{n_g}{V - V_l}
-$$
-
-Presiones de referencia:
+The chamber between the standing valve and the plunger has a volume $V = A_p\,(y_p - y_0)$. It holds liquid $V_l$ (incompressible) and gas, with $p\,V_g = n_g$ constant (isothermal):
 
 $$
-p_{\text{desc}} = \rho_f g L + p_{\text{línea}} \approx 14{,}0\ \text{MPa},
+p_{\text{ch}} = \frac{n_g}{V - V_l}
+$$
+
+Reference pressures:
+
+$$
+p_{\text{dis}} = \rho_f g L + p_{\text{line}} \approx 14.0\ \text{MPa},
 \qquad
-p_{\text{adm}} = p_{\text{casing}} + \rho_f g\,h_f
+p_{\text{int}} = p_{\text{casing}} + \rho_f g\,h_f
 $$
 
-Lógica de válvulas, que se evalúa en cada paso:
-- **Válvula fija** (abajo): abre si $p_{\text{cám}} < p_{\text{adm}}$. Entra mezcla del anular, con fracción $1-\alpha$ de líquido y $\alpha$ de gas, hasta igualar $p_{\text{adm}}$. Si el nivel en el anular llegó a la bomba, solo entra lo que aporta el reservorio.
-- **Válvula viajera** (en el pistón): abre si $p_{\text{cám}} > p_{\text{desc}}$. Primero sale el líquido hacia la tubería; si no queda líquido, también sale gas.
-- **Fugas:** $\dot V = k\,\Delta p$ a través de la válvula cerrada. La presión se limita al rango físico $[p_{\text{adm}}, p_{\text{desc}}]$ para que el paso explícito no sobrecorrija con el líquido casi incompresible.
+Valve logic, evaluated at every step:
+- **Standing valve** (bottom): opens if $p_{\text{ch}} < p_{\text{int}}$. A mixture from the annulus enters, with fraction $1-\alpha$ liquid and $\alpha$ gas, until $p_{\text{int}}$ is reached. If the annulus level has dropped to the pump, only what the reservoir delivers can enter.
+- **Travelling valve** (in the plunger): opens if $p_{\text{ch}} > p_{\text{dis}}$. Liquid leaves to the tubing first; if no liquid is left, gas leaves too.
+- **Leaks:** $\dot V = k\,\Delta p$ through the closed valve. Pressure is bounded to the physical range $[p_{\text{int}}, p_{\text{dis}}]$ so the explicit step does not overshoot with the nearly incompressible liquid.
 
-Carga en el fondo de la sarta:
-
-$$
-F_p = (p_{\text{desc}} - p_{\text{cám}})\,A_p \pm F_{\text{roz}}
-$$
-
-Cuando se activa "golpe abajo", se suma una fuerza de contacto si el pistón llega al tope inferior.
-
-**Espaciado de la bomba:** al arrancar, el simulador hace dos ciclos de asentamiento, mide el punto más bajo que alcanza el pistón con la sarta estirada y ubica el tope de la bomba 30 cm por debajo, como se hace en el campo.
-
-## 4. Cartas dinamométricas
-
-- **Superficie:** $(y_{\text{pr}}, \text{PRL})$, lo que mide un dinamómetro en el vástago pulido.
-- **Fondo:** $(y_p, F_p)$, la carga y la posición del pistón. En el campo se calcula a partir de la de superficie resolviendo la ecuación de onda hacia atrás; aquí sale directamente de la simulación.
-
-Con bomba llena, la carta de fondo es casi un rectángulo de alto $F_o = (p_{\text{desc}} - p_{\text{adm}})A_p$ y ancho igual a la carrera del pistón. El llenado se mide al tope de cada carrera:
+Load at the bottom of the string:
 
 $$
-\text{llenado} = \left.\frac{V_l}{V}\right|_{\text{tope}}
+F_p = (p_{\text{dis}} - p_{\text{ch}})\,A_p \pm F_{\text{fric}}
 $$
 
-| Situación | Carta de fondo |
+When "tagging bottom" is on, a contact force is added if the plunger reaches the lower stop.
+
+**Pump spacing:** at start-up the simulator runs two settling cycles, measures the lowest point the plunger reaches with the string stretched and places the pump stop 30 cm below it, as is done in the field.
+
+## 4. Dynamometer cards
+
+- **Surface:** $(y_{\text{pr}}, \text{PRL})$, what a dynamometer measures on the polished rod.
+- **Downhole:** $(y_p, F_p)$, the plunger load and position. In the field it is computed from the surface card by solving the wave equation backward; here it comes straight from the simulation.
+
+With a full pump, the downhole card is almost a rectangle of height $F_o = (p_{\text{dis}} - p_{\text{int}})A_p$ and width equal to the plunger stroke. Fillage is measured at the top of each stroke:
+
+$$
+\text{fillage} = \left.\frac{V_l}{V}\right|_{\text{top}}
+$$
+
+| Condition | Downhole card |
 |---|---|
-| Bomba llena | Rectángulo |
-| Golpe de fluido | La carga se mantiene durante parte de la bajada y cae de golpe cuando el pistón toca el líquido: esquina inferior derecha cortada |
-| Interferencia de gas | La carga baja de forma gradual al comprimirse el gas: descarga redondeada |
-| Fuga en válvula viajera | La carga se pierde durante la subida |
-| Fuga en válvula fija | La carga tarda en bajar durante la descarga |
-| Varilla cortada | Sin carga de fluido: la carta de superficie queda en el peso de la sarta superior |
+| Full pump | Rectangle |
+| Fluid pound | Load holds for part of the downstroke and drops suddenly when the plunger hits the liquid: lower right corner cut off |
+| Gas interference | Load drops gradually as the gas compresses: rounded unloading |
+| Travelling-valve leak | Load is lost during the upstroke |
+| Standing-valve leak | Load is slow to drop during unloading |
+| Parted rod | No fluid load: the surface card stays at the weight of the upper string |
 
-## 5. Par en el reductor y balanceo
-
-$$
-T_{\text{neto}}(\theta) = TF(\theta)\cdot\text{PRL}(\theta) - M\,\sin(\theta - \theta_0)
-$$
-
-$M$ es el momento máximo de los contrapesos, y $\theta_0$ se alinea con el máximo del factor de torque. Es la forma de la norma API 11E con el desbalance estructural $B$ igual a cero. La capacidad del reductor C-320 es de 320 000 lb·in, es decir, 36,2 kN·m. Con $M \approx$ 60 kN·m los picos quedan parecidos: unos 34 kN·m en la subida y 27 kN·m en la bajada. Con $M$ = 25 kN·m el pico pasa los 50 kN·m.
-
-## 6. Producción, nivel de fluido y controlador de bombeo (POC)
-
-El reservorio se modela con una IPR lineal:
+## 5. Gearbox torque and counterbalance
 
 $$
-q_{\text{res}} = q_{\max}\left(1 - \frac{p_{\text{adm}}}{p_r}\right), \qquad p_r = 9\ \text{MPa}
+T_{\text{net}}(\theta) = TF(\theta)\cdot\text{PRL}(\theta) - M\,\sin(\theta - \theta_0)
 $$
 
-El nivel en el anular sale del balance entre lo que entra y lo que saca la bomba:
+$M$ is the maximum counterbalance moment, and $\theta_0$ is aligned with the torque-factor maximum. This is the API 11E form with structural unbalance $B$ equal to zero. The C-320 gearbox is rated at 320,000 lb·in, that is, 36.2 kN·m. With $M \approx$ 60 kN·m the peaks are similar: about 34 kN·m on the upstroke and 27 kN·m on the downstroke. With $M$ = 25 kN·m the peak exceeds 50 kN·m.
+
+## 6. Production, fluid level and pump-off controller (POC)
+
+The reservoir is modelled with a linear IPR:
 
 $$
-A_{\text{an}}\,\frac{dh_f}{dt} = q_{\text{res}} - q_{\text{bomba}}
+q_{\text{res}} = q_{\max}\left(1 - \frac{p_{\text{int}}}{p_r}\right), \qquad p_r = 9\ \text{MPa}
 $$
 
-$A_{\text{an}}$ es un área efectiva unas 300 veces menor que la real, para que el nivel cambie en segundos y no en horas. Si la bomba saca más de lo que aporta el pozo, $h_f$ llega a 0 y aparece el golpe de fluido.
-
-**POC:** en cada tope de carrera compara el llenado con el mínimo aceptado.
+The annulus level follows from the balance between inflow and what the pump removes:
 
 $$
-\text{llenado} < \text{mín} \Rightarrow N \leftarrow N - 0{,}75\ \text{GPM},
+A_{\text{an}}\,\frac{dh_f}{dt} = q_{\text{res}} - q_{\text{pump}}
+$$
+
+$A_{\text{an}}$ is an effective area about 300 times smaller than the real one, so the level changes in seconds instead of hours. If the pump removes more than the well delivers, $h_f$ reaches 0 and fluid pound appears.
+
+**POC:** at every top of stroke it compares fillage with the minimum accepted.
+
+$$
+\text{fillage} < \text{min} \Rightarrow N \leftarrow N - 0.75\ \text{SPM},
 \qquad
-\text{llenado} > 0{,}95 \Rightarrow N \leftarrow N + 0{,}25
+\text{fillage} > 0.95 \Rightarrow N \leftarrow N + 0.25
 $$
 
-$N$ queda entre 4 GPM y el valor de operación, y el variador cambia la velocidad con una rampa de 0,8 GPM/s.
+$N$ stays between 4 SPM and the operating value, and the variable-speed drive changes speed with a 0.8 SPM/s ramp.
 
-## 7. Datos del pozo
+## 7. Well data
 
-| Parámetro | Valor |
+| Parameter | Value |
 |---|---|
-| Profundidad de la bomba $L$ | 1500 m |
-| Varillas | acero 7/8" ($A_r$ = 3,88 cm², $E$ = 207 GPa, $\rho_s$ = 7850 kg/m³) |
-| Amortiguamiento $c$ | 0,35 s⁻¹ |
-| Pistón | 1,75" (44,5 mm), ajustable de 1,25" a 2,25" |
-| Fluido | $\rho_f$ = 900 kg/m³ |
-| Presiones | línea 0,8 MPa, casing 0,3 MPa, reservorio 9 MPa |
-| Fricción del pistón | 0,5 kN |
-| Operación de referencia | 8 GPM, ≈ 250 bbl/d, PRL 73 / 26 kN |
+| Pump depth $L$ | 1500 m |
+| Rods | 7/8" steel ($A_r$ = 3.88 cm², $E$ = 207 GPa, $\rho_s$ = 7850 kg/m³) |
+| Damping $c$ | 0.35 s⁻¹ |
+| Plunger | 1.75" (44.5 mm), adjustable from 1.25" to 2.25" |
+| Fluid | $\rho_f$ = 900 kg/m³ |
+| Pressures | line 0.8 MPa, casing 0.3 MPa, reservoir 9 MPa |
+| Plunger friction | 0.5 kN |
+| Reference operation | 8 SPM, ≈ 250 bbl/d, PRL 73 / 26 kN |
 
-## Archivos
+## Files
 
-- `bombeo.html`: el simulador completo.
-- `vendor/`: three.js r128 (MIT) y MathJax 3.2.2 (Apache 2.0).
+- `bombeo.html`: the complete simulator.
+- `vendor/`: three.js r128 (MIT) and MathJax 3.2.2 (Apache 2.0).

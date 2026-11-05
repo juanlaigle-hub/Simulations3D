@@ -42,7 +42,7 @@ index.html          portfolio landing page (GitHub Pages)
 CSTR_Fundamentals.md
 ```
 
-Each folder has its own README (in Spanish) with the full equations, suggested experiments and the demo script.
+Each folder has its own README (in English, with a Spanish version) with the full equations, suggested experiments and the demo script.
 
 ## Run
 
