@@ -4,15 +4,15 @@
 
 Five interactive physics simulators that run in the browser with nothing to install. Each one solves its model in real
 time, drives the 3D scene from the model state, shows the equations with live values (the term that changes is
-highlighted when you move a control) and has a guided demo recorded on video.
+highlighted when you move a control) and has a guided demo.
 
 | | Simulator | Model and control | Open |
 |---|---|---|---|
-| ![](assets/cstr.gif) | **[CSTR reactor R-101 · training HMI](hmi/)** | Jacketed reactor, exothermic A → B; mass and energy balances (RK4), measurement noise, alarms; Dash HMI (ISA-101 style) linked to the 3D view. Base case 310 K; preheater failure runs away to 339 K unless the operator acts | [3D page](https://juanlaigle-hub.github.io/Simulations3D/hmi/assets/cstr_3d.html) |
-| ![](assets/dron.gif) | **[Q-450 quadcopter](drone_3d/)** | 6-DOF rigid body, cascaded PID (position → attitude), X mixer, motor dynamics; wind gusts, unknown payload, motor failure | [Open](https://juanlaigle-hub.github.io/Simulations3D/drone_3d/cuadricoptero.html) · [video](drone_3d/demo_dron.mp4) |
-| ![](assets/robot.gif) | **[B-2 self-balancing robot](robot_balancin/)** | Nonlinear wheeled inverted pendulum with adjustable legs; LQR solved in the browser with live closed-loop poles | [Open](https://juanlaigle-hub.github.io/Simulations3D/robot_balancin/robot.html) · [video](robot_balancin/demo_robot.mp4) |
-| ![](assets/bombeo.gif) | **[Sucker-rod pumping unit C-320](bombeo_mecanico/)** | 1500 m rod string with the damped wave equation, downhole pump with gas/liquid chamber and pressure-driven valves; live surface and downhole dynamometer cards; 5 faults; pump-off controller | [Open](https://juanlaigle-hub.github.io/Simulations3D/bombeo_mecanico/bombeo.html) · [video](bombeo_mecanico/demo_bombeo.mp4) |
-| ![](assets/evaporador.gif) | **[5-effect apple juice evaporator](evaporador_jugo/)** | Falling film, 12 → 70 °Brix; per-effect balances, boiling-point elevation, steam economy, PI °Brix control, aroma recovery, thermal damage (HMF and colour via Arrhenius), fouling and CIP | [Open](https://juanlaigle-hub.github.io/Simulations3D/evaporador_jugo/evaporador.html) · [video](evaporador_jugo/demo_evaporador.mp4) |
+| ![](assets/cstr-1.jpg) | **[CSTR reactor R-101 · training HMI](hmi/)** | Jacketed reactor, exothermic A → B; mass and energy balances (RK4), measurement noise, alarms; Dash HMI (ISA-101 style) linked to the 3D view. Base case 310 K; preheater failure runs away to 339 K unless the operator acts | [3D page](https://juanlaigle-hub.github.io/Simulations3D/hmi/assets/cstr_3d.html) |
+| ![](assets/dron-1.jpg) | **[Q-450 quadcopter](drone_3d/)** | 6-DOF rigid body, cascaded PID (position → attitude), X mixer, motor dynamics; wind gusts, unknown payload, motor failure | [Open](https://juanlaigle-hub.github.io/Simulations3D/drone_3d/cuadricoptero.html) |
+| ![](assets/robot-1.jpg) | **[B-2 self-balancing robot](robot_balancin/)** | Nonlinear wheeled inverted pendulum with adjustable legs; LQR solved in the browser with live closed-loop poles | [Open](https://juanlaigle-hub.github.io/Simulations3D/robot_balancin/robot.html) |
+| ![](assets/bombeo-1.jpg) | **[Sucker-rod pumping unit C-320](bombeo_mecanico/)** | 1500 m rod string with the damped wave equation, downhole pump with gas/liquid chamber and pressure-driven valves; live surface and downhole dynamometer cards; 5 faults; pump-off controller | [Open](https://juanlaigle-hub.github.io/Simulations3D/bombeo_mecanico/bombeo.html) |
+| ![](assets/evaporador-1.jpg) | **[5-effect apple juice evaporator](evaporador_jugo/)** | Falling film, 12 → 70 °Brix; per-effect balances, boiling-point elevation, steam economy, PI °Brix control, aroma recovery, thermal damage (HMF and colour via Arrhenius), fouling and CIP | [Open](https://juanlaigle-hub.github.io/Simulations3D/evaporador_jugo/evaporador.html) |
 
 ## Engineering decisions
 

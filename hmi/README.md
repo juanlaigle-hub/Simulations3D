@@ -1,5 +1,7 @@
 # Reactor CSTR R-101 · HMI de entrenamiento con vista 3D
 
+<p><img src="../assets/cstr-1.jpg" width="49%" alt=""> <img src="../assets/cstr-2.jpg" width="49%" alt=""></p>
+
 Reactor continuo de tanque agitado (CSTR) encamisado con una reacción exotérmica A → B. El modelo
 (`cstr_model.py`) integra los balances de masa y energía con RK4, agrega ruido de medición y define las alarmas.
 La HMI en Dash (`app.py`, estilo ISA-101) envía el estado en cada paso a la vista 3D (`assets/cstr_3d.html`, three.js).

@@ -7,7 +7,7 @@
 <meta name="description" content="Simuladores 3D interactivos de procesos y control: reactor CSTR con HMI, cuadricóptero con PID, robot autoequilibrado con LQR, bombeo mecánico con cartas dinamométricas y evaporador de jugo de 5 efectos. Con la matemática en vivo.">
 <meta property="og:title" content="Simulations3D · Procesos y control">
 <meta property="og:description" content="Cinco simuladores físicos en 3D que corren en el navegador, con las ecuaciones en vivo y demos guiadas.">
-<meta property="og:image" content="assets/bombeo.jpg">
+<meta property="og:image" content="assets/bombeo-1.jpg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Chakra+Petch:wght@500;600;700&family=IBM+Plex+Sans:wght@400;500;600&family=JetBrains+Mono:wght@400;500&display=swap">
@@ -45,6 +45,7 @@ section{padding-block:26px}
 @media (max-width: 860px){ .case{grid-template-columns:minmax(0,1fr)} }
 .media{border-radius:10px; overflow:hidden; border:1px solid var(--line); background:#000; align-self:start}
 .media img{display:block; width:100%; height:auto}
+.media img+img{border-top:2px solid var(--panel)}
 .case h3{font:700 1.35rem/1.2 var(--f-display); margin:0}
 .domain{font:600 .75rem var(--f-display); letter-spacing:.12em; text-transform:uppercase; color:var(--accent2)}
 .case p{margin:.5em 0; color:var(--muted)}
@@ -68,7 +69,7 @@ ul.tight{margin:.4em 0; padding-left:1.1em; color:var(--muted)} ul.tight li{marg
 .step b{display:block; font:700 .95rem var(--f-display); color:var(--fg); margin-bottom:2px}
 footer{padding-block:30px 40px; color:var(--muted); font-size:.88rem; border-top:1px solid var(--line); margin-top:20px}
 footer a{color:var(--fg)}
-[data-l]{display:none} html[lang="es"] [data-l="es"], html[lang="en"] [data-l="en"]{display:revert}
+html[lang="es"] [data-l="en"], html[lang="en"] [data-l="es"]{display:none!important}
 </style>
 </head>
 <body>
@@ -82,7 +83,7 @@ footer a{color:var(--fg)}
   <div class="hero">
     <div class="eyebrow"><span data-l="es">Simuladores físicos en 3D</span><span data-l="en">3D physics simulators</span></div>
     <h1><span data-l="es">Procesos y control que se ven, con la matemática en vivo</span><span data-l="en">Processes and control you can see, with live math</span></h1>
-    <p class="lead"><span data-l="es">Cinco simuladores interactivos que corren en el navegador, sin instalar nada. Cada uno resuelve su modelo físico en tiempo real, muestra las ecuaciones con sus valores al mover cualquier control y tiene una demo guiada grabada en video.</span><span data-l="en">Five interactive simulators that run in the browser with nothing to install. Each one solves its physical model in real time, shows the equations with live values as you move any control, and has a guided demo recorded on video.</span></p>
+    <p class="lead"><span data-l="es">Cinco simuladores interactivos que corren en el navegador, sin instalar nada. Cada uno resuelve su modelo físico en tiempo real, muestra las ecuaciones con sus valores al mover cualquier control y tiene una demo guiada.</span><span data-l="en">Five interactive simulators that run in the browser with nothing to install. Each one solves its physical model in real time, shows the equations with live values as you move any control, and has a guided demo.</span></p>
     <div class="chips"><span class="chip">JavaScript</span><span class="chip">three.js</span><span class="chip">MathJax</span><span class="chip">Python</span><span class="chip">Dash</span><span class="chip">PID</span><span class="chip">LQR</span><span class="chip">wave equation</span><span class="chip">mass &amp; energy balances</span><span class="chip">oil &amp; gas</span><span class="chip">food processing</span></div>
   </div>
 
@@ -90,7 +91,7 @@ footer a{color:var(--fg)}
     <h2><span data-l="es">Simuladores</span><span data-l="en">Simulators</span></h2>
 
     <article class="case">
-      <div class="media"><img src="assets/cstr.gif" alt="Reactor CSTR encamisado en 3D con instrumentos y panel de control" loading="lazy"></div>
+      <div class="media"><img src="assets/cstr-1.jpg" alt="Reactor CSTR encamisado en 3D con instrumentos y panel de control" loading="lazy"><img src="assets/cstr-2.jpg" alt="" loading="lazy"></div>
       <div>
         <div class="domain"><span data-l="es">Química · control de procesos</span><span data-l="en">Chemical · process control</span></div>
         <h3><span data-l="es">Reactor CSTR R-101 · HMI de entrenamiento</span><span data-l="en">CSTR reactor R-101 · operator training HMI</span></h3>
@@ -105,7 +106,7 @@ footer a{color:var(--fg)}
       </div>
     </article>
     <article class="case">
-      <div class="media"><img src="assets/dron.gif" alt="Cuadricóptero 3D volando con el panel de ecuaciones abierto" loading="lazy"></div>
+      <div class="media"><img src="assets/dron-1.jpg" alt="Cuadricóptero 3D volando con el panel de ecuaciones abierto" loading="lazy"><img src="assets/dron-2.jpg" alt="" loading="lazy"></div>
       <div>
         <div class="domain"><span data-l="es">Robótica · aeroespacial</span><span data-l="en">Robotics · aerospace</span></div>
         <h3><span data-l="es">Cuadricóptero Q-450</span><span data-l="en">Q-450 quadcopter</span></h3>
@@ -114,13 +115,12 @@ footer a{color:var(--fg)}
         <ul class="tight"><li data-l="es">El panel "∑ Ver la matemática" resalta la ecuación y el término que cambia al mover cada control.</li><li data-l="en">The "∑ Show the math" panel highlights the equation and term that change when any control moves.</li></ul>
         <div class="actions">
           <a class="btn prim" href="drone_3d/cuadricoptero.html"><span data-l="es">Abrir el simulador</span><span data-l="en">Open simulator</span> →</a>
-          <a class="btn" href="drone_3d/demo_dron.mp4">Video</a>
           <a class="btn" href="https://github.com/juanlaigle-hub/Simulations3D/tree/main/drone_3d">README</a>
         </div>
       </div>
     </article>
     <article class="case">
-      <div class="media"><img src="assets/robot.gif" alt="Robot autoequilibrado de dos ruedas con polos en el plano complejo" loading="lazy"></div>
+      <div class="media"><img src="assets/robot-1.jpg" alt="Robot autoequilibrado de dos ruedas con polos en el plano complejo" loading="lazy"><img src="assets/robot-2.jpg" alt="" loading="lazy"></div>
       <div>
         <div class="domain"><span data-l="es">Robótica · control óptimo</span><span data-l="en">Robotics · optimal control</span></div>
         <h3><span data-l="es">Robot balancín B-2</span><span data-l="en">B-2 self-balancing robot</span></h3>
@@ -129,13 +129,12 @@ footer a{color:var(--fg)}
         <ul class="tight"><li data-l="es">Muestra por qué un péndulo más alto es más fácil de equilibrar y qué pasa si no se recalcula la ganancia.</li><li data-l="en">Shows why a taller pendulum is easier to balance and what happens if the gain is not recomputed.</li></ul>
         <div class="actions">
           <a class="btn prim" href="robot_balancin/robot.html"><span data-l="es">Abrir el simulador</span><span data-l="en">Open simulator</span> →</a>
-          <a class="btn" href="robot_balancin/demo_robot.mp4">Video</a>
           <a class="btn" href="https://github.com/juanlaigle-hub/Simulations3D/tree/main/robot_balancin">README</a>
         </div>
       </div>
     </article>
     <article class="case">
-      <div class="media"><img src="assets/bombeo.gif" alt="Aparato de bombeo mecánico con cartas dinamométricas en vivo" loading="lazy"></div>
+      <div class="media"><img src="assets/bombeo-1.jpg" alt="Aparato de bombeo mecánico con cartas dinamométricas en vivo" loading="lazy"><img src="assets/bombeo-2.jpg" alt="" loading="lazy"></div>
       <div>
         <div class="domain"><span data-l="es">Oil &amp; gas · producción</span><span data-l="en">Oil &amp; gas · production</span></div>
         <h3><span data-l="es">Bombeo mecánico AIB C-320</span><span data-l="en">Sucker-rod pumping unit C-320</span></h3>
@@ -144,13 +143,12 @@ footer a{color:var(--fg)}
         <ul class="tight"><li data-l="es">Es la base de datos del clasificador de cartas de MachineLearningApplications.</li><li data-l="en">It generates the data for the card classifier in MachineLearningApplications.</li></ul>
         <div class="actions">
           <a class="btn prim" href="bombeo_mecanico/bombeo.html"><span data-l="es">Abrir el simulador</span><span data-l="en">Open simulator</span> →</a>
-          <a class="btn" href="bombeo_mecanico/demo_bombeo.mp4">Video</a>
           <a class="btn" href="https://github.com/juanlaigle-hub/Simulations3D/tree/main/bombeo_mecanico">README</a>
         </div>
       </div>
     </article>
     <article class="case">
-      <div class="media"><img src="assets/evaporador.gif" alt="Evaporador de cinco efectos de jugo de manzana en 3D" loading="lazy"></div>
+      <div class="media"><img src="assets/evaporador-1.jpg" alt="Evaporador de cinco efectos de jugo de manzana en 3D" loading="lazy"><img src="assets/evaporador-2.jpg" alt="" loading="lazy"></div>
       <div>
         <div class="domain"><span data-l="es">Alimentos · jugo concentrado</span><span data-l="en">Food · juice concentrate</span></div>
         <h3><span data-l="es">Evaporador de 5 efectos para jugo de manzana</span><span data-l="en">5-effect apple juice evaporator</span></h3>
@@ -159,7 +157,6 @@ footer a{color:var(--fg)}
         <ul class="tight"><li data-l="es">Ensuciamiento, CIP, pérdida de vacío y enfriador de producto; enclavamiento de °Brix alto.</li><li data-l="en">Fouling, CIP, vacuum loss and product cooler; high-°Brix interlock.</li></ul>
         <div class="actions">
           <a class="btn prim" href="evaporador_jugo/evaporador.html"><span data-l="es">Abrir el simulador</span><span data-l="en">Open simulator</span> →</a>
-          <a class="btn" href="evaporador_jugo/demo_evaporador.mp4">Video</a>
           <a class="btn" href="https://github.com/juanlaigle-hub/Simulations3D/tree/main/evaporador_jugo">README</a>
         </div>
       </div>
