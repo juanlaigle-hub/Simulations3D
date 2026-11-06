@@ -1,5 +1,7 @@
 # Simulations3D · Simuladores de procesos y control en 3D
 
+[![Pruebas de física](https://github.com/juanlaigle-hub/Simulations3D/actions/workflows/fisica.yml/badge.svg)](https://github.com/juanlaigle-hub/Simulations3D/actions/workflows/fisica.yml)
+
 **Sitio en vivo:** https://juanlaigle-hub.github.io/Simulations3D/ · [English version](README.md)
 
 La demo del reactor CSTR está abierta. El resto de los simuladores son confidenciales: escribime desde **Pedir una demo**.
@@ -44,6 +46,23 @@ CSTR_Fundamentals.md
 ```
 
 Cada carpeta tiene su README con las ecuaciones completas, experimentos sugeridos y el guion de la demo.
+
+## Pruebas de física
+
+En cada cambio se corren pruebas automáticas de fenomenología (`tests/`): cargan el núcleo físico de cada simulador directamente desde su HTML y verifican lo que dicen los README.
+
+| Modelo | Qué se verifica |
+|---|---|
+| CSTR | Estado estacionario base exacto (310 K, X = 0,15), estabilidad térmica en el punto de operación, disparo a 339 K con la falla del precalentador y recuperación a 316 K |
+| Cuadricóptero | Vuelo estacionario, acción integral con carga desconocida, límite de estabilidad $K_d > \tau_m K_p$ por el retardo del motor, recuperación de un empujón, detección de choque con motores desarmados |
+| Robot balancín | El polo de lazo abierto se acerca al origen con patas más altas, lazo cerrado LQR estable, retroceso de ~3 cm por fase no mínima, saturación de par |
+| Bombeo mecánico | Carga de fluido $F_o$ = 17,9 kN, producción y carga máxima, par del reductor según el contrapeso, la fuga en la válvula baja la producción, la varilla cortada la detiene |
+| Evaporador | 70 °Brix en estado estacionario, balance de sólidos, economía de vapor, EPE y $T_{sat}$ de referencia, sentido de los escalones de alimentación y vapor, el HMF sube con la temperatura del vapor |
+
+```bash
+node --test tests/fisica.test.mjs
+python -m unittest discover -s tests
+```
 
 ## Cómo usarlo
 

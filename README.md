@@ -1,5 +1,7 @@
 # Simulations3D · Process and control simulators in 3D
 
+[![Pruebas de física](https://github.com/juanlaigle-hub/Simulations3D/actions/workflows/fisica.yml/badge.svg)](https://github.com/juanlaigle-hub/Simulations3D/actions/workflows/fisica.yml)
+
 **Live site:** https://juanlaigle-hub.github.io/Simulations3D/ · [Versión en español](README.es.md)
 
 The CSTR reactor demo is open to everyone. The other simulators are confidential: use **Request a demo** to write to me.
@@ -43,6 +45,23 @@ CSTR_Fundamentals.md
 ```
 
 Each folder has its own README (in English, with a Spanish version) with the full equations, suggested experiments and the demo script.
+
+## Physics tests
+
+Every push runs automated phenomenology checks (`tests/`) that load each simulator's physics core straight from its HTML and verify what the READMEs claim:
+
+| Model | What is checked |
+|---|---|
+| CSTR | Exact base steady state (310 K, X = 0.15), thermal stability at the operating point, runaway to 339 K after the preheater failure and recovery to 316 K |
+| Quadcopter | Stable hover, integral action with an unknown payload, stability limit $K_d > \tau_m K_p$ from motor lag, recovery from a push, crash detection that disarms the motors |
+| Self-balancing robot | Open-loop pole moves toward the origin with taller legs, stable LQR closed loop, ~3 cm non-minimum-phase undershoot, torque saturation |
+| Sucker-rod pump | Fluid load $F_o$ = 17.9 kN, production and peak load, gearbox torque vs. counterbalance, valve leak lowers production, parted rod stops it |
+| Evaporator | 70 °Brix steady state, solids balance, steam economy, BPE and $T_{sat}$ references, feed/steam step directions, HMF rises with steam temperature |
+
+```bash
+node --test tests/fisica.test.mjs
+python -m unittest discover -s tests
+```
 
 ## Run
 
